@@ -14,6 +14,25 @@
 
 ## Planned acceptance tests
 
+### Cart Management — 2026-10-07
+
+Executed `node --check script.js` and `node tests/cart.test.cjs`; both exited with code 0. The latter executes the actual application script with a simulated DOM and invokes registered product and cart button click handlers. It checks cart state and rendered quantity, subtotal, and total text. This is not a real browser or touchscreen test.
+
+| Scenario | Actual result | Outcome |
+| --- | --- | --- |
+| Coffee ×2, Sandwich ×1, Soft Drink ×1 | Subtotals ₱90.00, ₱50.00, ₱35.00; total ₱175.00; three cart rows | PASS |
+| Coffee quantity 2 → 3 | Coffee subtotal ₱135.00; total ₱220.00 | PASS |
+| Coffee quantity 3 → 2 | Coffee subtotal ₱90.00; total ₱175.00 | PASS |
+| Remove Soft Drink using its Remove handler | Row removed; total ₱140.00 | PASS |
+| Decrease Coffee to zero then decrease five more times | Coffee absent; no negative quantity; remaining total ₱50.00 | PASS |
+| Remove last item | Total ₱0.00; empty-order message restored | PASS |
+| Invalid product identifiers | No cart changes; total remains ₱0.00 | PASS |
+| Re-add removed Coffee | Quantity 1; subtotal and total ₱45.00 | PASS |
+| Source syntax and Git whitespace | Both checks passed | PASS |
+| Browser rendering, focus, touch, and console | Not executed; previous local file browser access restriction remains | NOT VERIFIED |
+
+Product-selection UI files were restored from feature-products because that PR was not merged into main. Cart work does not merge that PR. Continue remains disabled; no Order Summary or payment behavior exists.
+
 NOT RUN indicates no behavioral verification has occurred. A planned test is not a passing result.
 
 | ID | Steps / expected outcome | Result |

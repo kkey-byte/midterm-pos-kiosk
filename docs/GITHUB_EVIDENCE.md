@@ -27,6 +27,20 @@ Current branch at inspection: main.
 
 ## Evidence to collect later
 
+## Cart feature — 2026-10-07
+
+- Branch: feature-cart, targeting main.
+- Feature commit: 19ef5380e41e501fa3526a54fce3aaa430949432.
+- Subject: feat(cart): add quantity controls and order calculations.
+- [Feature commit](https://github.com/kkey-byte/midtern-pos-kiosk/commit/19ef5380e41e501fa3526a54fce3aaa430949432).
+- git push -u origin feature-cart succeeded with exit code 0 and reported a new feature-cart branch, tracking origin/feature-cart.
+- Review reran node --check script.js, node tests/cart.test.cjs, and Git whitespace checks successfully. Exact totals verified: ₱175 → ₱220 → ₱175 → ₱140. Tests invoke actual registered event handlers in a simulated DOM; real browser/touch/console checks remain unperformed.
+- Cart Management is DONE for verified logic and simulated DOM output; browser integration remains pending.
+- PR description is prepared in CART_PR_DESCRIPTION.md. GitHub CLI is unavailable; no cart PR creation is claimed.
+- [Prepare cart PR](https://github.com/kkey-byte/midtern-pos-kiosk/compare/main...feature-cart).
+- This branch includes the product UI restored from feature-products because PR #1 was not merged when feature-cart was created. No Order Summary/payment logic was added and no merge was performed.
+- This evidence update is a separate documentation commit so it can record the actual feature hash and successful push.
+
 | Evidence | Status |
 | --- | --- |
 | Authorized initialization commit and SHA | Recorded above |
