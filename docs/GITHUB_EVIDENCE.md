@@ -1,5 +1,15 @@
 # GitHub Evidence
 
+## Validation review — 2026-10-07
+
+- Branch feature-validation; target main. Receipt changes integrated; stash conflicts resolved preserving receipt/reset and validation work. Stash retained as backup.
+- Feature commit 32fd371535e7fbdd5891734194d50efff4678ffe: feat(validation): enforce payment and quantity validation.
+- Full combined simulated DOM suite, JavaScript syntax and Git whitespace checks passed; no conflict markers remain. Browser verification remains pending.
+- Validation task marked DONE for actual verification scope.
+- Push attempted with credential.interactive=never, failed exit 1 because Git could not obtain credentials noninteractively. No successful push or PR creation claimed.
+- PR description prepared in VALIDATION_PR_DESCRIPTION.md. After authentication run git push -u origin feature-validation and create a draft PR at https://github.com/kkey-byte/midtern-pos-kiosk/compare/main...feature-validation using the feature commit title and prepared description.
+- Evidence and PR preparation recorded in a documentation follow-up commit. No merge performed.
+
 ## Confirmation / Receipt / Reset review — 2026-10-07
 
 - Branch: feature-receipt; PR target: main. Foundation on main includes payment merge 6782605.

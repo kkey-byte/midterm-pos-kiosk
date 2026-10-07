@@ -49,4 +49,6 @@ Completion rechecks the active processing screen, cart validity, selected method
 ## Customer data reset
 
 NEW TRANSACTION is accepted only from a completed receipt. It clears both application state and hidden rendered values, including previous references, timestamp attributes, receipt rows, and payment amounts/errors. Reset does not retain a transaction ledger. The receipt guard prevents reopening the cleared receipt.
-`n## Integrated audit result — 2026-10-07`nReceipt is now integrated. Combined tests passed reference-after-valid-completion guards, receipt access guards, and previous-customer reset clearing including hidden DOM. Cart recovery preserves completed snapshot rendering on success/receipt screens. Earlier missing-feature notes are historical; browser checks remain pending.
+
+## Integrated audit result — 2026-10-07
+Receipt is now integrated. Combined tests passed reference-after-valid-completion guards, receipt access guards, and previous-customer reset clearing including hidden DOM. Cart recovery preserves completed snapshot rendering on success/receipt screens. Earlier missing-feature notes are historical; browser checks remain pending.

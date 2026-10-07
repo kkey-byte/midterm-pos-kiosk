@@ -16,7 +16,9 @@
 
 ### Focused Payment release review — 2026-10-07
 
-Reran `node --check script.js`, `node tests/cart.test.cjs`, and `git diff --check`: all passed. No genuine application defect was discovered during this focused review; only verification coverage and documentation were expanded.
+Reran 
+ode --check script.js`, 
+ode tests/cart.test.cjs`, and `git diff --check`: all passed. No genuine application defect was discovered during this focused review; only verification coverage and documentation were expanded.
 
 - Cash: total ₱140; ₱100 rejected, ₱140 accepted/change ₱0, ₱200 accepted/change ₱60, and ₱200.10/change ₱60.10. Invalid inputs retained processing with feedback and no successful result.
 - QR: active panel amount ₱140; confirmation records paid ₱140/change ₱0/method QR Payment. Source assertions checked the labelled non-scannable placeholder and scan instruction.
@@ -28,7 +30,9 @@ Payment is DONE for implemented logic, simulated DOM output, and source verifica
 
 ### Simulated Credit/Debit Card — 2026-10-07
 
-Executed `node --check script.js`, `node tests/cart.test.cjs`, and Git whitespace checks successfully. The test executes actual registered handlers in a simulated DOM. setTimeout is replaced by a controlled queue: the test verifies the scheduled delay is 1500ms and explicitly invokes the callback. Real elapsed timing, browser rendering, touch, focus, and console checks were not performed.
+Executed 
+ode --check script.js`, 
+ode tests/cart.test.cjs`, and Git whitespace checks successfully. The test executes actual registered handlers in a simulated DOM. setTimeout is replaced by a controlled queue: the test verifies the scheduled delay is 1500ms and explicitly invokes the callback. Real elapsed timing, browser rendering, touch, focus, and console checks were not performed.
 
 | Check | Observed result | Outcome |
 | --- | --- | --- |
@@ -47,7 +51,9 @@ No receipt or transaction ledger was implemented. Card processing uses the share
 
 ### Simulated QR Payment — 2026-10-07
 
-Executed `node --check script.js`, `node tests/cart.test.cjs`, and Git whitespace checks successfully. The simulated DOM test uses actual registered method, navigation, and Confirm Payment handlers. Actual browser, touch, and console checks were not performed.
+Executed 
+ode --check script.js`, 
+ode tests/cart.test.cjs`, and Git whitespace checks successfully. The simulated DOM test uses actual registered method, navigation, and Confirm Payment handlers. Actual browser, touch, and console checks were not performed.
 
 | Check | Observed result | Outcome |
 | --- | --- | --- |
@@ -64,7 +70,9 @@ Cash and QR now share applicationState.paymentResult and completeSimulatedPaymen
 
 ### Cash Payment processing — 2026-10-07
 
-Executed `node --check script.js`, `node tests/cart.test.cjs`, and `git diff --check`; all passed. The test executes the actual application script in a simulated DOM and submits the registered cash form handler. These results do not establish actual browser/touch/console behavior.
+Executed 
+ode --check script.js`, 
+ode tests/cart.test.cjs`, and `git diff --check`; all passed. The test executes the actual application script in a simulated DOM and submits the registered cash form handler. These results do not establish actual browser/touch/console behavior.
 
 | Total | Amount Paid | Observed result | Outcome |
 | --- | --- | --- | --- |
@@ -82,7 +90,9 @@ UI source inspected: Total Amount, labelled Amount Paid input with decimal keybo
 
 ### Payment Method selection — 2026-10-07
 
-Executed `node --check script.js`, `node tests/cart.test.cjs`, and Git whitespace checks successfully. Tests execute the actual application script and registered button handlers in a simulated DOM. This is not a browser test.
+Executed 
+ode --check script.js`, 
+ode tests/cart.test.cjs`, and Git whitespace checks successfully. Tests execute the actual application script and registered button handlers in a simulated DOM. This is not a browser test.
 
 | Method / check | Observed result | Outcome |
 | --- | --- | --- |
@@ -101,7 +111,9 @@ Payment buttons have 120px minimum height, 24px padding, native keyboard semanti
 
 ### Cart Management — 2026-10-07
 
-Executed `node --check script.js` and `node tests/cart.test.cjs`; both exited with code 0. The latter executes the actual application script with a simulated DOM and invokes registered product and cart button click handlers. It checks cart state and rendered quantity, subtotal, and total text. This is not a real browser or touchscreen test.
+Executed 
+ode --check script.js` and 
+ode tests/cart.test.cjs`; both exited with code 0. The latter executes the actual application script with a simulated DOM and invokes registered product and cart button click handlers. It checks cart state and rendered quantity, subtotal, and total text. This is not a real browser or touchscreen test.
 
 | Scenario | Actual result | Outcome |
 | --- | --- | --- |
@@ -142,7 +154,8 @@ For each executed test, record date, browser/version, viewport or device, exact 
 
 ## Payment Successful confirmation — 2026-10-07
 
-Executed `node tests/cart.test.cjs`: PASS, including existing cart, summary, cash, QR, and card regressions. The harness executes the actual script with simulated DOM controls and a controlled card timer; these are not browser tests.
+Executed 
+ode tests/cart.test.cjs`: PASS, including existing cart, summary, cash, QR, and card regressions. The harness executes the actual script with simulated DOM controls and a controlled card timer; these are not browser tests.
 
 - Premature success navigation, insufficient cash (₱100 against ₱140), and inconsistent change: no completed snapshot or new reference.
 - Completed cash transaction: Coffee ×2, Sandwich ×1; total ₱140, paid ₱200, change ₱60. Confirmation fields matched.
@@ -152,7 +165,8 @@ Executed `node tests/cart.test.cjs`: PASS, including existing cart, summary, cas
 
 ## Digital Receipt — 2026-10-07
 
-Executed `node tests/cart.test.cjs`: PASS including payment/cart/summary regressions. Actual JavaScript runs in a simulated DOM; browser rendering, console, and touch interaction were not tested.
+Executed 
+ode tests/cart.test.cjs`: PASS including payment/cart/summary regressions. Actual JavaScript runs in a simulated DOM; browser rendering, console, and touch interaction were not tested.
 
 - View Receipt opens receipt and hides confirmation after valid payment. Access without a completed transaction is blocked.
 - Receipt reference and displayed ISO date/time exactly match the snapshot; time element datetime attribute matches too.
@@ -163,7 +177,8 @@ Executed `node tests/cart.test.cjs`: PASS including payment/cart/summary regress
 
 ## New Transaction — 2026-10-07
 
-Executed `node tests/cart.test.cjs`: PASS, including prior cart, summary, payment, confirmation, and receipt regressions. Verification used the actual JavaScript and registered handlers in simulated DOM, not a real browser.
+Executed 
+ode tests/cart.test.cjs`: PASS, including prior cart, summary, payment, confirmation, and receipt regressions. Verification used the actual JavaScript and registered handlers in simulated DOM, not a real browser.
 
 - Completed Coffee ×2 + Sandwich ×1 cash transaction (total/paid ₱140, change ₱0), opened receipt, then selected NEW TRANSACTION.
 - Cart Map size 0; cart/summary/receipt rows empty; total ₱0.00. Continue disabled and empty-order message visible.
@@ -208,4 +223,6 @@ Scope: feature-validation based on main 6782605. Ran node tests/cart.test.cjs (P
 QR source assertions checked labelled non-scannable placeholder, supported payment application instruction, and Confirm Payment; card source checked required instruction and Process Payment. These are source checks rather than browser appearance checks.
 
 Required unresolved checks: reference generation only after successful payment, incomplete-payment receipt guard, and reset preventing previous-customer leakage cannot be executed on this branch because main does not yet contain feature-receipt. No receipt/reference/reset feature was added during this audit. Re-run their tests after that reviewed feature is integrated. Validation remains IN PROGRESS; do not claim a complete acceptance pass.
-`n## Combined audit after receipt integration — 2026-10-07`nResolved stash conflicts preserving frozen snapshots, receipt/reset, and validation fixes. node tests/cart.test.cjs passed the full combined suite: invalid completion creates no reference, incomplete payment cannot open receipt, two valid references differ, receipt matches snapshot, reset clears state and hidden output, subsequent Cookies/QR transaction and second reset pass. Cart/cash/navigation/source/message assertions also passed. Browser checks remain unperformed. Prior missing-feature audit notes describe the earlier branch state and are now superseded.
+
+## Combined audit after receipt integration — 2026-10-07
+Resolved stash conflicts preserving frozen snapshots, receipt/reset, and validation fixes. node tests/cart.test.cjs passed the full combined suite: invalid completion creates no reference, incomplete payment cannot open receipt, two valid references differ, receipt matches snapshot, reset clears state and hidden output, subsequent Cookies/QR transaction and second reset pass. Cart/cash/navigation/source/message assertions also passed. Browser checks remain unperformed. Prior missing-feature audit notes describe the earlier branch state and are now superseded.
