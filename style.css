@@ -1,0 +1,39 @@
+/* Basic reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body,
+h1,
+p {
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #eef2f6;
+  color: #1f2937;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.kiosk {
+  width: 100%;
+  max-width: 960px;
+  padding: 32px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 16px;
+}
+
+h1 {
+  margin-bottom: 12px;
+  font-size: clamp(28px, 5vw, 40px);
+  line-height: 1.2;
+}
