@@ -10,11 +10,12 @@
 <body>
   <main id="app" class="kiosk" aria-labelledby="app-title">
     <header class="kiosk-header">
-      <p class="eyebrow">IT415 · Item Selection</p>
-      <h1 id="app-title">Touchscreen POS Kiosk</h1>
-      <p id="selection-note">Tap a product to add it to your order. Use + and − to adjust quantities.</p>
+      <p id="screen-label" class="eyebrow">IT415 · Item Selection</p>
+      <h1 id="app-title" tabindex="-1">Touchscreen POS Kiosk</h1>
     </header>
-    <div class="kiosk-layout">
+    <p id="navigation-message" role="status" aria-live="polite"></p>
+    <div id="item-selection" class="kiosk-layout">
+      <p id="selection-note" class="selection-note">Tap a product to add it to your order. Use + and − to adjust quantities.</p>
       <section aria-labelledby="products-title">
         <h2 id="products-title">Products</h2>
         <div id="product-grid" class="product-grid" aria-describedby="selection-note"></div>
@@ -25,10 +26,25 @@
         <p id="empty-order" class="empty-order">Your order is empty.</p>
         <ul id="cart-items" class="cart-items" aria-label="Order items"></ul>
         <p class="order-total" aria-live="polite" aria-atomic="true">Total: <span id="cart-total">₱0.00</span></p>
-        <p id="continue-note" class="order-note">The next step is not available yet.</p>
-        <button class="continue-button" type="button" disabled aria-describedby="continue-note">Continue</button>
+        <p id="continue-note" class="order-note">Review your order before continuing.</p>
+        <button id="selection-continue" class="continue-button" type="button" disabled aria-describedby="continue-note">Continue</button>
       </aside>
     </div>
+    <section id="order-summary" hidden aria-labelledby="summary-title">
+      <h2 id="summary-title" tabindex="-1">Order Summary</h2>
+      <p>Review your selected products and quantities.</p>
+      <ul id="summary-items" class="cart-items" aria-label="Order summary items"></ul>
+      <p class="order-total">Total: <span id="summary-total">₱0.00</span></p>
+      <div class="navigation-controls">
+        <button id="summary-back" class="cart-control" type="button">BACK</button>
+        <button id="summary-continue" class="continue-button" type="button">CONTINUE TO PAYMENT</button>
+      </div>
+    </section>
+    <section id="payment-method" hidden aria-labelledby="payment-title">
+      <h2 id="payment-title" tabindex="-1">Payment Method</h2>
+      <p>Payment selection will be available in a later stage.</p>
+      <button id="payment-back" class="cart-control" type="button">BACK TO ORDER SUMMARY</button>
+    </section>
   </main>
 </body>
 </html>

@@ -11,6 +11,71 @@ const products = [
 
 // The cart stores quantities only; names and prices always come from the catalog.
 const cart = new Map();
+let currentScreen = 'item-selection';
+
+function isValidCartEntry(productId, quantity) {
+  const product = products.find((item) => item.id === productId);
+  return Boolean(product) && Number.isSafeInteger(quantity) && quantity > 0 &&
+    Number.isSafeInteger(product.price * quantity);
+}
+
+function isCartValid() {
+  return cart.size > 0 && Array.from(cart).every(([id, quantity]) => isValidCartEntry(id, quantity)) &&
+    Number.isSafeInteger(calculateTotal());
+}
+
+function renderOrderSummary() {
+  const list = document.getElementById('summary-items');
+  const total = document.getElementById('summary-total');
+  if (!list || !total) return;
+  const fragment = document.createDocumentFragment();
+  cart.forEach((quantity, productId) => {
+    const product = products.find((item) => item.id === productId);
+    const row = document.createElement('li');
+    row.className = 'cart-item';
+    const name = document.createElement('h3');
+    name.textContent = product.name;
+    const unitPrice = document.createElement('p');
+    unitPrice.textContent = `Unit price: ${formatPrice(product.price)}`;
+    const quantityLabel = document.createElement('p');
+    quantityLabel.textContent = `Qty: ${quantity}`;
+    const subtotal = document.createElement('p');
+    subtotal.textContent = `Subtotal: ${formatPrice(calculateSubtotal(productId))}`;
+    row.append(name, unitPrice, quantityLabel, subtotal);
+    fragment.append(row);
+  });
+  list.replaceChildren(fragment);
+  total.textContent = formatPrice(calculateTotal());
+}
+
+function navigateTo(screen) {
+  const screens = ['item-selection', 'order-summary', 'payment-method'];
+  if (!screens.includes(screen)) return;
+  let message = '';
+  if (screen !== 'item-selection' && !isCartValid()) {
+    cart.forEach((quantity, id) => {
+      if (!isValidCartEntry(id, quantity)) cart.delete(id);
+    });
+    if (!Number.isSafeInteger(calculateTotal())) cart.clear();
+    screen = 'item-selection';
+    message = 'Please choose your products again. Your order is empty or contains an invalid item.';
+  }
+  if (screen === 'payment-method' && currentScreen !== 'order-summary') return;
+  if (screen === 'order-summary') renderOrderSummary();
+  if (screen === 'item-selection') renderCart();
+  currentScreen = screen;
+  screens.forEach((id) => {
+    const section = document.getElementById(id);
+    if (section) section.hidden = id !== screen;
+  });
+  const status = document.getElementById('navigation-message');
+  if (status) status.textContent = message;
+  const label = document.getElementById('screen-label');
+  const titles = { 'item-selection': 'Item Selection', 'order-summary': 'Order Summary', 'payment-method': 'Payment Method' };
+  if (label) label.textContent = `IT415 · ${titles[screen]}`;
+  const headingId = screen === 'order-summary' ? 'summary-title' : screen === 'payment-method' ? 'payment-title' : 'app-title';
+  document.getElementById(headingId)?.focus?.();
+}
 
 function formatPrice(value) {
   return `₱${value.toFixed(2)}`;
@@ -96,6 +161,8 @@ function renderCart() {
   total.textContent = formatPrice(calculateTotal());
   const empty = document.getElementById('empty-order');
   if (empty) empty.hidden = cart.size > 0;
+  const continueButton = document.getElementById('selection-continue');
+  if (continueButton) continueButton.disabled = !isCartValid();
 }
 
 function renderProducts(container) {
@@ -136,6 +203,16 @@ function initializeApplication() {
     renderProducts(productGrid);
   }
   renderCart();
+
+  const navigation = {
+    'selection-continue': 'order-summary',
+    'summary-back': 'item-selection',
+    'summary-continue': 'payment-method',
+    'payment-back': 'order-summary'
+  };
+  Object.entries(navigation).forEach(([id, screen]) => {
+    document.getElementById(id)?.addEventListener('click', () => navigateTo(screen));
+  });
 
   application.dataset.initialized = 'true';
 }
