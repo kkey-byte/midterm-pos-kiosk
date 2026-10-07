@@ -19,3 +19,5 @@ This table maps planned requirements to stages and verification cases. It does n
 | R13 | S0, S9 | Initial console is clear and invalid inputs receive useful feedback | T13 |
 
 Record actual results and evidence in TEST_PLAN_RESULTS.md. Update this mapping when approved requirements change.
+
+Item Selection display checkpoint: six product names/prices and native button generation passed simulated DOM checks. R04 cart addition is deferred by the current scope. Touch interaction and browser console checks remain unverified; this checkpoint does not satisfy T04 or T12.

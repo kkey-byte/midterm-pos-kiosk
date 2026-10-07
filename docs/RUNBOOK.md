@@ -7,6 +7,8 @@
 3. Confirm that Touchscreen POS Kiosk appears inside the styled container.
 4. Open browser developer tools and check for initial console errors.
 5. Inspect the application container and confirm data-initialized="true".
+6. Confirm all six catalog products and their approved prices appear, with an empty current-order area and disabled Continue control.
+7. Check product button focus and touch size. Activating products does not add items yet; this stage provides display only.
 
 No installation, npm command, build step, backend, or database is required.
 

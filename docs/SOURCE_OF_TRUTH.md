@@ -23,9 +23,13 @@ Item Selection → Order Summary → Payment Method → Payment Processing → P
 
 ## Current scope and status
 
-The application currently contains only an HTML page, basic styling, and safe JavaScript initialization. No transaction behavior is implemented. Browser verification remains outstanding.
+The application displays six JavaScript-rendered product buttons, an empty current-order area, and a disabled Continue control. No cart actions, calculations, navigation, or transaction behavior are implemented. Browser verification remains outstanding.
 
-This documentation step establishes the development baseline only. Planned behavior in other documents must not be interpreted as implemented behavior.
+Approved catalog (PHP): Coffee ₱45.00; Sandwich ₱50.00; Soft Drink ₱35.00; Cookies ₱25.00; Bottled Water ₱20.00; Chocolate ₱25.00.
+
+The current Item Selection scope is display only. Product buttons accept native focus and activation but have no cart handlers. Continue is disabled until progression is implemented in a later stage.
+
+Planned behavior in other documents must not be interpreted as implemented behavior.
 
 ## Change control
 
