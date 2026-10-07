@@ -23,6 +23,7 @@ The stages below are the development sequence derived from the approved flow. Co
 | S6 | Payment Successful | Implement the success screen | DONE | Actual JavaScript passed simulated DOM confirmation, payment guards, immutable snapshot, and two distinct reference tests; browser checks remain under S9 |
 | S7 | Receipt | Implement receipt display from the completed transaction | DONE | Snapshot reference/dateTime, all item fields, total, method, paid, change, success status and cart independence passed simulated DOM tests; browser checks remain under S9 |
 | S8 | New Transaction | Reset transaction state and return to Item Selection | DONE | Receipt button clears order/payment/receipt state and hidden DOM; next Cookies/QR transaction and a second reset passed simulated DOM tests; browser checks remain under S9 |
+| S8V | Validation and Error Handling | Review and implement validation and safe error handling | DONE | Combined simulated DOM suite passed cart/cash/payment/navigation/reference/receipt/reset/source checks after receipt integration; browser checks remain under S9 |
 | S9 | Integration and quality verification | Verify the entire flow, touch usability, error handling, and console | TODO | Execute TEST_PLAN_RESULTS.md cases and record actual results |
 | S10 | GitHub and examination evidence | Record verified commits, repository evidence, and demonstration results | TODO | Record actual links and evidence; commit or push only when authorized |
 

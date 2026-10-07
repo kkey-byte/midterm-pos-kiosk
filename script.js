@@ -201,7 +201,7 @@ function validateAmountPaid(rawAmount, total) {
   const value = String(rawAmount ?? '').trim();
   if (!value) return { error: 'Please enter the amount paid.' };
   const numeric = Number(value);
-  if (!Number.isFinite(numeric)) return { error: 'Enter a valid, finite numeric amount.' };
+  if (!Number.isFinite(numeric)) return { error: 'Please enter a valid amount using numbers, such as 200.00.' };
   if (numeric < 0) return { error: 'Amount paid cannot be negative.' };
   if (!/^\d+(?:\.\d{1,2})?$/.test(value)) return { error: 'Enter a numeric amount with up to two decimal places.' };
   const [whole, fraction = ''] = value.split('.');
@@ -298,14 +298,18 @@ function renderOrderSummary() {
 function navigateTo(screen) {
   if (applicationState.cardProcessing) return;
   const screens = ['item-selection', 'order-summary', 'payment-method', 'payment-processing', 'payment-successful', 'receipt'];
+  const recoveringScreen = !screens.includes(currentScreen);
+  if (recoveringScreen) screen = 'item-selection';
   if (!screens.includes(screen)) return;
   if (screen === 'receipt' && (currentScreen !== 'payment-successful' ||
       applicationState.completedTransaction?.status !== 'completed')) return;
   if (screen === 'payment-processing' && (currentScreen !== 'payment-method' || !paymentMethods.some((method) => method.id === applicationState.selectedPaymentMethod))) return;
   if (screen === 'payment-successful' && (currentScreen !== 'payment-processing' ||
       !applicationState.paymentResult || applicationState.completedTransaction?.status !== 'completed')) return;
-  let message = '';
-  if (!['item-selection', 'payment-successful', 'receipt'].includes(screen) && !isCartValid()) {
+  let message = recoveringScreen ? 'Please choose your products again to continue.' : '';
+  const invalidEntry = Array.from(cart).some(([id, quantity]) => !isValidCartEntry(id, quantity));
+  if ((screen === 'item-selection' && invalidEntry) ||
+      (!['item-selection', 'payment-successful', 'receipt'].includes(screen) && !isCartValid())) {
     applicationState.selectedPaymentMethod = null;
     applicationState.paymentResult = null;
     applicationState.completedTransaction = null;
@@ -365,6 +369,11 @@ function increaseQuantity(productId) {
 
 function decreaseQuantity(productId) {
   const quantity = cart.get(productId);
+  if (cart.has(productId) && !isValidCartEntry(productId, quantity)) {
+    cart.delete(productId);
+    renderCart();
+    return;
+  }
   if (!quantity) return;
   if (quantity === 1) cart.delete(productId);
   else cart.set(productId, quantity - 1);

@@ -514,3 +514,42 @@ assert.equal(run('applicationState.completedTransaction'), null);
 assert.equal(nodes['receipt-items'].children.length, 0);
 total(0);
 console.log('PASS: After reset, Cookies ×1 → summary → QR confirmation → new receipt completes for ₱25 paid/₱0 change with a new reference; second reset also succeeds.');
+
+run("cart.set('unknown', 1)");
+assert.doesNotThrow(() => run("navigateTo('item-selection')"));
+assert.equal(run("cart.has('unknown')"), false);
+assert.ok(nodes['navigation-message'].textContent.length > 0);
+run("cart.clear(); cart.set('coffee', -1); decreaseQuantity('coffee')");
+assert.equal(run("cart.has('coffee')"), false);
+run("cart.clear(); navigateTo('item-selection')");
+tap('coffee'); tap('coffee'); tap('sandwich');
+enterCashProcessing();
+for (const result of [
+  {total:140,amountPaid:100,change:-40,paymentMethod:'Cash'},
+  {total:140,amountPaid:200,change:999,paymentMethod:'Cash'},
+  {total:140,amountPaid:Infinity,change:0,paymentMethod:'Cash'},
+  {total:140,amountPaid:140,change:0,paymentMethod:'unknown'}
+]) {
+  run(`completeSimulatedPayment(${JSON.stringify(result)})`);
+  assert.equal(run('currentScreen'), 'payment-processing');
+  assert.equal(run('applicationState.paymentResult'), null);
+}
+run("navigateTo('item-selection'); currentScreen = 'unknown'; navigateTo('unknown')");
+assert.equal(run('currentScreen'), 'item-selection');
+assert.ok(nodes['navigation-message'].textContent.length > 0);
+console.log('PASS: Corrupted cart and screen state recover with friendly feedback; negative corrupted quantities removed; inconsistent completion rejected.');
+
+const scriptSource = fs.readFileSync(path.join(__dirname, '..', 'script.js'), 'utf8');
+assert.equal(/\beval\s*\(|new\s+Function\s*\(|innerHTML|outerHTML|insertAdjacentHTML/.test(scriptSource), false);
+assert.equal(/\bfetch\s*\(|XMLHttpRequest|WebSocket|localStorage|sessionStorage/.test(scriptSource), false);
+assert.equal(/type=["']password/.test(pageSource), false);
+for (const value of ['', 'hello', '-5', 'Infinity', 'NaN', '1e309', '100']) {
+  const result = run(`validateAmountPaid(${JSON.stringify(value)}, 140)`);
+  assert.equal(typeof result.error, 'string');
+  assert.ok(result.error.length > 10);
+  assert.equal(/TypeError|ReferenceError|SyntaxError|stack|evalmachine/.test(result.error), false);
+}
+const markupInput = run("validateAmountPaid('<img src=x onerror=alert(1)>', 140)");
+assert.ok(markupInput.error);
+assert.equal(markupInput.error.includes('<img'), false);
+console.log('PASS: Source has no eval/dynamic Function/HTML injection/network/storage APIs; Amount Paid is the only input; invalid amounts receive readable messages with no raw error or input markup.');

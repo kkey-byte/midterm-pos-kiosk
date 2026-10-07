@@ -172,3 +172,40 @@ Executed `node tests/cart.test.cjs`: PASS, including prior cart, summary, paymen
 - Success amounts/method/reference and all receipt fields empty, including date/time datetime attribute. Only Item Selection visible. Previous receipt access and duplicate reset attempts ignored.
 - Started another transaction through registered controls: Cookies ×1 → Summary ₱25 → QR Payment → Confirm → Receipt. New snapshot/receipt contained only Cookies ×1, total/paid ₱25, change ₱0, QR Payment, and a different reference. Selecting NEW TRANSACTION again returned to an empty ₱0.00 order with no snapshot or receipt rows.
 - Browser display, console, and touchscreen behavior remain unverified.
+
+## Validation and error-handling audit — 2026-10-07
+
+Scope: feature-validation based on main 6782605. Ran node tests/cart.test.cjs (PASS after fixes), node --check script.js, and git diff --check. Actual script/registered handlers execute in a simulated DOM with controlled card timer. No real-browser console, rendering, touch, or elapsed timer verification.
+
+| Actual test | Observed result |
+| --- | --- |
+| Coffee ×2 + Sandwich ×1 + Soft Drink ×1 | Subtotals 90/50/35, total ₱175 |
+| Coffee 2 → 3 → 2 | Subtotal 135 → 90, totals ₱220 → ₱175 |
+| Remove Soft Drink | Row removed, total ₱140 |
+| Decrease to zero, repeated decreases, empty order, invalid IDs, re-add | No negative quantity; zero row removed; total zero; invalid IDs ignored |
+| Summary and summary Back | Same Map, Coffee ×2/Sandwich ×1, total ₱140 preserved |
+| Empty/invalid summary carts | Returned Item Selection with friendly message; no exception |
+| Cash/QR/Card selection and all-method Back chain | Selected method state correct, exclusive aria-pressed; order unchanged through processing → method → summary → selection |
+| Invalid method and invalid cart during selection | Invalid method ignored; invalid cart safely recovered |
+| Premature success navigation | No success without payment result |
+| Cash input 100 against 140 | Rejected, remained processing, no payment result |
+| Cash blank, spaces, abc, -1, Infinity, -Infinity, NaN, 1e309 | All rejected with feedback and no success/result |
+| Cash 200.001 and 9007199254740992 | Overprecision/unsafe amount rejected |
+| Cash 200, 140, 200.10 against 140 | Accepted; change ₱60, ₱0, ₱60.10; repeat submission ignored |
+| QR due/confirmation, repeat, empty cart | Due ₱140; paid ₱140/change zero; repeat ignored; invalid order rejected |
+| Card instructions and processing | Source instruction present; due ₱140; processing visible, Process/Back locked; six activations scheduled one 1500ms callback |
+| Card controlled completion/repeat | Paid ₱140/change zero; post-success repeat ignored; cart preserved |
+| Cart changed during card delay | Completion rejected; lock released; invalid retry scheduled no timer |
+| Unknown catalog entry then Item Selection | Initially TypeError reproduced; after fix invalid entry removed with friendly message and no exception |
+| Corrupted Coffee quantity -1 then decrease | Initially persisted negative quantity; after fix invalid row removed |
+| Shared completion with insufficient cash, wrong change, nonfinite/null paid, unknown method | Initially insufficient cash produced success; after fix all rejected, stayed processing without result |
+| Corrupted current screen then unknown navigation | Recovers Item Selection with friendly feedback |
+| Blank/hello/-5/Infinity/NaN/1e309/100 customer messages | Readable text; no TypeError/ReferenceError/SyntaxError/stack output |
+| Markup amount input | Rejected without echoing markup |
+| Application source inspection/assertions | No eval/dynamic Function/HTML injection/network/storage APIs; only Amount Paid input; no credential fields |
+| Common secret-pattern scan (excluding .git and tests) | No matches for common GitHub/OpenAI/AWS keys, private keys, or credential assignments |
+
+QR source assertions checked labelled non-scannable placeholder, supported payment application instruction, and Confirm Payment; card source checked required instruction and Process Payment. These are source checks rather than browser appearance checks.
+
+Required unresolved checks: reference generation only after successful payment, incomplete-payment receipt guard, and reset preventing previous-customer leakage cannot be executed on this branch because main does not yet contain feature-receipt. No receipt/reference/reset feature was added during this audit. Re-run their tests after that reviewed feature is integrated. Validation remains IN PROGRESS; do not claim a complete acceptance pass.
+`n## Combined audit after receipt integration — 2026-10-07`nResolved stash conflicts preserving frozen snapshots, receipt/reset, and validation fixes. node tests/cart.test.cjs passed the full combined suite: invalid completion creates no reference, incomplete payment cannot open receipt, two valid references differ, receipt matches snapshot, reset clears state and hidden output, subsequent Cookies/QR transaction and second reset pass. Cart/cash/navigation/source/message assertions also passed. Browser checks remain unperformed. Prior missing-feature audit notes describe the earlier branch state and are now superseded.
