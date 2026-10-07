@@ -9,8 +9,26 @@
 </head>
 <body>
   <main id="app" class="kiosk" aria-labelledby="app-title">
-    <h1 id="app-title">Touchscreen POS Kiosk</h1>
-    <p>IT415 Practical Examination Project</p>
+    <header class="kiosk-header">
+      <p class="eyebrow">IT415 · Item Selection</p>
+      <h1 id="app-title">Touchscreen POS Kiosk</h1>
+      <p id="selection-note">Tap a product to add it to your order. Use + and − to adjust quantities.</p>
+    </header>
+    <div class="kiosk-layout">
+      <section aria-labelledby="products-title">
+        <h2 id="products-title">Products</h2>
+        <div id="product-grid" class="product-grid" aria-describedby="selection-note"></div>
+        <noscript>Please enable JavaScript to display the product catalog.</noscript>
+      </section>
+      <aside class="current-order" aria-labelledby="order-title">
+        <h2 id="order-title">Current order</h2>
+        <p id="empty-order" class="empty-order">Your order is empty.</p>
+        <ul id="cart-items" class="cart-items" aria-label="Order items"></ul>
+        <p class="order-total" aria-live="polite" aria-atomic="true">Total: <span id="cart-total">₱0.00</span></p>
+        <p id="continue-note" class="order-note">The next step is not available yet.</p>
+        <button class="continue-button" type="button" disabled aria-describedby="continue-note">Continue</button>
+      </aside>
+    </div>
   </main>
 </body>
 </html>
