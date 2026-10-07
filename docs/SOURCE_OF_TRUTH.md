@@ -40,3 +40,15 @@ Planned behavior in other documents must not be interpreted as implemented behav
 ## Change control
 
 Record approved decision changes here, update affected requirements and traceability, and record the work and evidence in AI_DEVELOPMENT_LOG.md and TEST_PLAN_RESULTS.md. Mark implementation tasks DONE only after implementation and actual verification.
+
+## Payment Successful stage
+
+Only a validated completed simulated payment creates a completed transaction snapshot and reference. Confirmation displays PAYMENT SUCCESSFUL, total, amount paid, method, change, reference, and a View Receipt control. Receipt viewing remains pending, so that control is disabled with an explanatory message. Snapshot items and payment values are copied and deeply frozen; later cart changes cannot alter them. Data remains in memory.
+
+## Digital receipt stage
+
+Receipt viewing is now implemented from the frozen completed transaction snapshot. It displays POS heading, reference, date/time, names, quantities, unit prices, subtotals, total, method, paid amount, change, and Payment Successful status. View Receipt is enabled. NEW TRANSACTION is displayed disabled; reset is pending. Simulated DOM verification passed; browser checks remain outstanding.
+
+## New Transaction stage
+
+NEW TRANSACTION is now enabled on the receipt. It clears the current order, payment state/input/errors, success output, completed snapshot, and previous receipt output before returning to Item Selection with an empty cart and ₱0.00 total. A subsequent Cookies/QR transaction and repeated reset were verified in simulated DOM. Browser integration remains pending.

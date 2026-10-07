@@ -19,9 +19,10 @@ The stages below are the development sequence derived from the approved flow. Co
 | S4P | Payment | Develop the simulated payment stages | DONE | Focused cash/QR/card handler tests and all-method Back preservation passed in simulated DOM with controlled card timer; required UI source checked; real browser verification remains under S9 |
 | S4 | Payment Method | Implement simulated payment method selection | DONE | All three choices and Back preservation passed simulated DOM tests; only allowlisted method identifiers stored; browser checks remain under S9 |
 | S5 | Payment Processing | Implement simulated processing and duplicate-submission protection | DONE | Focused cash validation/change, QR confirmation, and card lock/completion tests passed; actual timer/rendering checks remain under S9 |
-| S6 | Payment Successful | Implement the success screen | IN PROGRESS | Minimal shared success view shows method, paid amount, and change for all three methods; guards tested; receipt/transaction records not implemented |
-| S7 | Receipt | Implement receipt display from the completed transaction | TODO | Verify receipt items, totals, and payment method match the transaction |
-| S8 | New Transaction | Reset transaction state and return to Item Selection | TODO | Verify no previous order or payment state remains |
+| S6R | Confirmation / Receipt / Reset | Develop confirmation, receipt, and transaction reset on feature-receipt | DONE | Confirmation, receipt, complete reset, and subsequent transaction passed simulated DOM tests; browser integration remains under S9 |
+| S6 | Payment Successful | Implement the success screen | DONE | Actual JavaScript passed simulated DOM confirmation, payment guards, immutable snapshot, and two distinct reference tests; browser checks remain under S9 |
+| S7 | Receipt | Implement receipt display from the completed transaction | DONE | Snapshot reference/dateTime, all item fields, total, method, paid, change, success status and cart independence passed simulated DOM tests; browser checks remain under S9 |
+| S8 | New Transaction | Reset transaction state and return to Item Selection | DONE | Receipt button clears order/payment/receipt state and hidden DOM; next Cookies/QR transaction and a second reset passed simulated DOM tests; browser checks remain under S9 |
 | S9 | Integration and quality verification | Verify the entire flow, touch usability, error handling, and console | TODO | Execute TEST_PLAN_RESULTS.md cases and record actual results |
 | S10 | GitHub and examination evidence | Record verified commits, repository evidence, and demonstration results | TODO | Record actual links and evidence; commit or push only when authorized |
 

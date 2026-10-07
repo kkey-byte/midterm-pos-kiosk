@@ -340,6 +340,30 @@ button:focus-visible {
   font-weight: 700;
 }
 
+#success-reference {
+  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+
+#reset-availability {
+  margin: 20px 0;
+}
+
+.receipt {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+#receipt-reference {
+  overflow-wrap: anywhere;
+}
+
+.receipt-status {
+  margin: 20px 0;
+  color: #166534;
+  font-weight: 700;
+}
+
 .cart-control:disabled {
   cursor: not-allowed;
   opacity: 0.65;

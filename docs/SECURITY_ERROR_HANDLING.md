@@ -31,3 +31,11 @@ Initialization safely returns when the application container is absent. JavaScri
 ## Limits
 
 Client-side controls can be altered by a user. This foundation is not suitable for processing real payments or protecting financial records. In-memory data is lost on reload.
+
+## Confirmation guards
+
+Completion rechecks the active processing screen, cart validity, selected method, total, finite paid/change values, and method-specific payment rules before creating a reference. Existing completed payment results prevent repeated completion. Success navigation requires a completed snapshot. No credentials or real payment provider are involved. References identify simulated transactions; they are not proof of real payment.
+
+## Customer data reset
+
+NEW TRANSACTION is accepted only from a completed receipt. It clears both application state and hidden rendered values, including previous references, timestamp attributes, receipt rows, and payment amounts/errors. Reset does not retain a transaction ledger. The receipt guard prevents reopening the cleared receipt.
