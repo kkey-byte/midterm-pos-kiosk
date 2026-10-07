@@ -27,6 +27,18 @@ Current branch at inspection: main.
 
 ## Evidence to collect later
 
+## Focused Payment review — 2026-10-07
+
+- Branch: feature-payment; intended PR base: main.
+- Local feature commit: 2d55d6d9c38e017c448c25fe1e085ed5d833dc9d.
+- Subject: feat(payment): implement cash QR and card payment flows.
+- Focused tests passed: Cash ₱100 rejected against ₱140, exact ₱140/change ₱0, ₱200/change ₱60; QR/Card paid=₱140 and change=₱0; every method Back chain preserves the authoritative order.
+- Actual tests: node --check script.js, node tests/cart.test.cjs (simulated DOM/registered handlers and controlled card timer), source assertions, and Git whitespace checks. No real browser or elapsed timing result is claimed.
+- Payment task is DONE for this verification scope. No genuine application defect was found in the focused test.
+- Push attempted with saved credentials and failed: Cannot prompt because user interactivity has been disabled; unable to get password from user. No successful payment push is claimed.
+- PR description prepared in PAYMENT_PR_DESCRIPTION.md. No payment PR was created. Authenticate Git, run git push -u origin feature-payment, then create a draft PR from feature-payment into main. No merge performed.
+- This documentation follow-up records the actual feature hash; its own final hash is available in git log.
+
 ## Cart feature — 2026-10-07
 
 - Branch: feature-cart, targeting main.
