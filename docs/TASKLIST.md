@@ -13,7 +13,7 @@ The stages below are the development sequence derived from the approved flow. No
 | --- | --- | --- | --- | --- |
 | S0 | Repository and project foundation | Inspect repository and create the HTML/CSS/JavaScript foundation | IN PROGRESS | Files created; browser load, styling, initialization, and console verification outstanding |
 | S1 | Documentation foundation | Establish the ten project documents and check their consistency | IN PROGRESS | Documentation created; review against examination criteria remains open |
-| S2 | Item Selection | Implement the hard-coded product catalog and touchscreen item selection | TODO | Verify selection updates in-memory order state |
+| S2 | Item Selection | Implement the hard-coded product catalog and touchscreen item selection | IN PROGRESS | Six data-rendered product buttons and empty order area implemented; names/prices checked in simulated DOM; browser verification and later cart actions remain outstanding |
 | S3 | Order Summary | Implement quantities, removal, totals, and summary navigation | TODO | Verify order calculations and prevent advancing with an empty order |
 | S4 | Payment Method | Implement simulated payment method selection | TODO | Verify a method is required before processing |
 | S5 | Payment Processing | Implement simulated processing and duplicate-submission protection | TODO | Verify processing state and one completion per transaction |

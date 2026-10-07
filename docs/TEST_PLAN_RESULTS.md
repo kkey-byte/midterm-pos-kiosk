@@ -14,6 +14,21 @@
 
 ## Planned acceptance tests
 
+### Item Selection display checks — 2026-10-07
+
+| Check | Actual result |
+| --- | --- |
+| JavaScript syntax | PASS: node --check script.js |
+| Six rendered native buttons | PASS: executed script.js in Node VM with a minimal simulated DOM; asserted count and button types |
+| Exact names and prices | PASS in simulated DOM: Coffee ₱45.00, Sandwich ₱50.00, Soft Drink ₱35.00, Cookies ₱25.00, Bottled Water ₱20.00, Chocolate ₱25.00 |
+| Initialization without runtime exceptions | PASS in simulated DOM; not a browser console check |
+| Large controls and responsive layout | Source checked: 140px product minimum height, 24px padding, responsive grid, visible focus; actual rendering NOT VERIFIED |
+| Click/touch/keyboard interaction in browser | NOT VERIFIED; native button semantics inspected; no action handlers by design |
+| Initial browser console | NOT VERIFIED; automated local file access was previously rejected by browser policy |
+| Git whitespace check | PASS: git diff --check |
+
+These checks do not verify cart addition or subsequent transaction behavior. S2 remains IN PROGRESS.
+
 NOT RUN indicates no behavioral verification has occurred. A planned test is not a passing result.
 
 | ID | Steps / expected outcome | Result |

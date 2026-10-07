@@ -27,6 +27,17 @@ Current branch at inspection: main.
 
 ## Evidence to collect later
 
+## Item Selection branch review — 2026-10-07
+
+- Current local branch: feature-products, created from the synchronized main foundation.
+- Reviewed git status and git diff: changes are limited to index.html, style.css, script.js, and relevant project documentation.
+- Scope is display-only product selection: six product buttons, an empty order area, and disabled Continue. No cart actions or subsequent transaction functionality were added.
+- JavaScript syntax passed again during review. Earlier simulated DOM tests verified exact product names/prices and button generation.
+- Browser rendering, actual interaction, and console checks remain unverified because automated local file access was rejected by browser policy.
+- The requested feature commit and push are conditional on successful feature testing. No feature commit or push has been made; there is no feature commit hash to record. TASKLIST S2 remains IN PROGRESS.
+
+## Remaining evidence
+
 | Evidence | Status |
 | --- | --- |
 | Authorized initialization commit and SHA | Recorded above |

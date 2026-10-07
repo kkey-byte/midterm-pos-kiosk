@@ -10,6 +10,8 @@ Record actual work, constraints, verification, and limitations. Do not record pr
 
 ## Constraints maintained
 
+2026-10-07: On feature-products, implemented the display-only Item Selection scope: six catalog buttons rendered from JavaScript, responsive layout, empty current-order area, and disabled Continue. JavaScript syntax and simulated DOM checks passed for count, exact names/prices, native button types, and initialization. Browser rendering, clicks, and console remain unverified. No cart actions, quantities, removal, calculations, summary, payments, or receipts were implemented. Changes are uncommitted.
+
 HTML5 + CSS3 + Vanilla JavaScript only. No packages installed, no POS functionality implemented, and no commits or pushes made during these steps.
 
 ## Future entry format
