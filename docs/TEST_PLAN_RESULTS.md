@@ -1,5 +1,93 @@
 # Test Plan and Results
 
+Documentation synchronization note: the Instructor acceptance pass immediately below is the current outcome. Older records later in this file are historical stage evidence, including missing-feature and uncommitted-work notes that applied when recorded. Application behavior now includes confirmation, receipt, reset, validation and refactoring. PASS scope remains simulated DOM/source where stated; no browser result is invented.
+
+## Instructor acceptance pass — 2026-10-07
+
+Executed node tests/cart.test.cjs, node --check script.js, and extra in-memory harness assertions for initialization, six exact product controls, insufficient-payment receipt guard, and each Cash/QR/Card flow through confirmation, receipt, and reset. All executable assertions passed. PASS below means actual script/registered handlers and rendered output in simulated DOM, not browser verification. Card timer is controlled. Browser local-file access was previously rejected; real browser appearance/touch/console checks are NOT VERIFIED. No application files or tests modified in this stage.
+
+### TEST 1 — Startup and products
+EXPECTED: Application starts with six touch-friendly products.
+ACTUAL: Initialization marker set; six native buttons with click handlers: Coffee ₱45, Sandwich ₱50, Soft Drink ₱35, Cookies ₱25, Bottled Water ₱20, Chocolate ₱25. CSS source gives cards minimum height 140px. Actual browser startup/appearance/touch not inspected.
+STATUS: NOT VERIFIED (logic/source checks passed; required browser/touch check pending).
+
+### TEST 2 — Initial cart
+EXPECTED: Coffee ×2 ₱90 + Sandwich ×1 ₱50 + Soft Drink ×1 ₱35 = ₱175.
+ACTUAL: All three quantities/subtotals and ₱175 total matched rendered cart and state.
+STATUS: PASS.
+
+### TEST 3 — Quantity changes
+EXPECTED: Coffee 2 → 3 yields subtotal ₱135, total ₱220; 3 → 2 yields total ₱175.
+ACTUAL: Both quantity controls produced those exact subtotals/totals.
+STATUS: PASS.
+
+### TEST 4 — Removal
+EXPECTED: Remove Soft Drink; total ₱140.
+ACTUAL: Soft Drink row removed; two items remain; total ₱140.
+STATUS: PASS.
+
+### TEST 5 — Summary
+EXPECTED: Coffee ₱90, Sandwich ₱50, total ₱140.
+ACTUAL: Summary showed Coffee ×2 at ₱45/unit and Sandwich ×1 at ₱50/unit with matching subtotals/total and authoritative cart.
+STATUS: PASS.
+
+### TEST 6 — Back
+EXPECTED: Back preserves order.
+ACTUAL: Summary Back and every method's processing → method → summary → Item Selection preserved the same Map, Coffee ×2, Sandwich ×1, ₱140.
+STATUS: PASS.
+
+### TEST 7 — Payment methods visible
+EXPECTED: Cash, QR Payment, Credit/Debit Card visible.
+ACTUAL: All three native controls exist in HTML; method section unhidden in simulated DOM; each selection passed with exclusive aria-pressed. Actual browser visibility not inspected.
+STATUS: NOT VERIFIED (source/handler checks passed; browser visibility pending).
+
+### TEST 8 — Insufficient cash
+EXPECTED: Total ₱140, paid ₱100 rejected; no success/receipt.
+ACTUAL: Friendly insufficient message; stayed processing with null result/snapshot and hidden success; View Receipt could not navigate.
+STATUS: PASS.
+
+### TEST 9 — Valid cash
+EXPECTED: ₱200 against ₱140 gives ₱60 change/success; exact ₱140 gives zero change.
+ACTUAL: Both accepted with ₱60 and ₱0 change respectively; success state entered; repeated submit ignored.
+STATUS: PASS.
+
+### TEST 10 — Confirmation
+EXPECTED: Amount, method, reference, View Receipt.
+ACTUAL: Confirmation total ₱140, correct method, paid/change values and POS-prefixed reference matched saved snapshot. Native View Receipt source and handler verified; click opened receipt.
+STATUS: PASS.
+
+### TEST 11 — Receipt
+EXPECTED: Receipt matches completed transaction information.
+ACTUAL: POS heading source present; reference, ISO date/time and time attribute, Coffee ×2/unit ₱45/subtotal ₱90, Sandwich ×1/unit ₱50/subtotal ₱50, total ₱140, Cash, paid ₱200, change ₱60, Payment Successful all matched. Cart edits left saved receipt unchanged.
+STATUS: PASS.
+
+### TEST 12 — QR
+EXPECTED: Simulated paid = total, change ₱0.
+ACTUAL: Confirmation and receipt: total/paid ₱140, method QR Payment, change ₱0; reset passed.
+STATUS: PASS.
+
+### TEST 13 — Card
+EXPECTED: Simulated paid = total, change ₱0.
+ACTUAL: Processing lock and one 1500ms timer scheduled; controlled completion and receipt total/paid ₱140, Credit/Debit Card, change ₱0; reset passed. Actual elapsed timing not verified.
+STATUS: PASS.
+
+### TEST 14 — New Transaction
+EXPECTED: Empty cart, ₱0 total, old transaction cleared.
+ACTUAL: Cart/quantities/rows empty; total ₱0; method/result/snapshot null; input/errors/locks/success and receipt fields including datetime attribute cleared; Item Selection visible and Continue disabled. Next Cookies/QR transaction and repeated reset passed.
+STATUS: PASS.
+
+### TEST 15 — Different references
+EXPECTED: Two completed transactions have different references.
+ACTUAL: Main suite produced POS-4ff2f0ff-da81-42e4-b938-365cf852b35a and POS-e38d780f-bd2c-4730-9c93-f0e3e4383507. They differed; failed/repeated completion generated no extra reference.
+STATUS: PASS.
+
+### Browser console
+EXPECTED: No errors during startup or critical flows.
+ACTUAL: Browser console not inspected. Successful Node/VM execution is not console evidence.
+STATUS: NOT VERIFIED.
+
+No FAIL was observed in executable tests. Overall instructor acceptance remains incomplete pending real-browser startup, visibility/touch, and console checks. No commit/push performed.
+
 ## Recorded foundation checks
 
 | Check | Actual result | Evidence |
@@ -12,7 +100,7 @@
 | JavaScript loads and initializes in browser | NOT VERIFIED | Runtime initialization marker not inspected in browser |
 | Initial browser console has no errors | NOT VERIFIED | Browser console not inspected |
 
-## Planned acceptance tests
+## Historical stage results and test planning
 
 ### Focused Payment release review — 2026-10-07
 

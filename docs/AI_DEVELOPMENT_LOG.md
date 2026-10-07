@@ -2,6 +2,18 @@
 
 Record actual work, constraints, verification, and limitations. Do not record proposed functionality as completed behavior.
 
+## Current work record — 2026-10-07
+
+Earlier entries below are historical stage checkpoints; their statements about pending features or no commits apply only to those stages. Current implementation includes all transaction screens, frozen snapshots, receipt and reset. Local history now includes validation commit 32fd371, evidence commit 76f7fa3 and refactor commit 183f868; no authorship or live PR status is inferred beyond observed history.
+
+Codex inspected and resolved validation stash conflicts after receipt integration, preserving snapshot/receipt/reset and audit guards. Actual combined tests passed. Earlier reproduced invalid-product rendering, corrupt negative quantity handling, and insufficient shared-completion defects were addressed during validation. A later separate bug investigation observed no genuine defect; no artificial fix commit was created.
+
+Refactoring centralized cart/currentScreen in applicationState, cached static DOM references, centralized catalog lookup/payment clearing, named the card delay, separated listeners/initialization and organized fifteen sections. HTML indentation and unused CSS were cleaned. Regression tests and each method through receipt/reset passed in simulated DOM. A probe initially retained preceding test cart data; correct seeding passed without application changes.
+
+Instructor pass ran actual script/handlers, extra product/control assertions and Cash/QR/Card receipt/reset flows. Tests 2–6 and 8–15 passed within simulated DOM scope. Tests 1/7 and console remain NOT VERIFIED for actual browser/touch/visibility. No browser inspection is claimed.
+
+Documentation finalization reviewed application files, actual test records, local Git hashes/refs and synchronized README and ten project documents. No application behavior, new test outcomes, commit, push, PR, merge, or deployment was introduced in this stage.
+
 | Date | Work | Actual outcome | Verification / limitation |
 | --- | --- | --- | --- |
 | 2026-10-07 | Repository inspection | Found nested midtern-pos-kiosk repository on main with origin pointing to the existing GitHub repository; no commits | Git status, branch, remotes, file listing, and commit history inspected |
@@ -10,9 +22,9 @@ Record actual work, constraints, verification, and limitations. Do not record pr
 
 ## Constraints maintained
 
-HTML5 + CSS3 + Vanilla JavaScript only. No packages installed, no POS functionality implemented, and no commits or pushes made during these steps.
+HTML5 + CSS3 + Vanilla JavaScript only; no packages installed. The foundation entries describe steps before feature implementation and commits; current behavior is recorded above and in SOURCE_OF_TRUTH.md.
 
-## Future entry format
+## Historical feature checkpoints
 
 2026-10-07: Focused Payment release review passed cash, QR, card, and all-method Back-chain tests using simulated DOM, controlled card timer, and source assertions. No genuine application defect found. Marked Payment DONE for the documented verification scope; real browser checks remain integration work. Created local commit 2d55d6d9c38e017c448c25fe1e085ed5d833dc9d and prepared PAYMENT_PR_DESCRIPTION.md. Push failed because Git could not obtain credentials noninteractively; no successful push, PR creation, or merge claimed.
 

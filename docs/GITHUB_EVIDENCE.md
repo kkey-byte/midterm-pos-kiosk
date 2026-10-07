@@ -1,88 +1,82 @@
 # GitHub Evidence
 
-## Validation review — 2026-10-07
+## Final Git/GitHub audit — 2026-10-07
 
-- Branch feature-validation; target main. Receipt changes integrated; stash conflicts resolved preserving receipt/reset and validation work. Stash retained as backup.
-- Feature commit 32fd371535e7fbdd5891734194d50efff4678ffe: feat(validation): enforce payment and quantity validation.
-- Full combined simulated DOM suite, JavaScript syntax and Git whitespace checks passed; no conflict markers remain. Browser verification remains pending.
-- Validation task marked DONE for actual verification scope.
-- Push attempted with credential.interactive=never, failed exit 1 because Git could not obtain credentials noninteractively. No successful push or PR creation claimed.
-- PR description prepared in VALIDATION_PR_DESCRIPTION.md. After authentication run git push -u origin feature-validation and create a draft PR at https://github.com/kkey-byte/midtern-pos-kiosk/compare/main...feature-validation using the feature commit title and prepared description.
-- Evidence and PR preparation recorded in a documentation follow-up commit. No merge performed.
+Inspected git status, git branch -a, git log --oneline --decorate --graph --all, commit file lists, origin/main..HEAD, and origin URLs. git fetch origin succeeded with exit 0. Public GitHub REST API returned all five repository PRs; current PR evidence below supersedes earlier unverified-status notes.
 
-## Confirmation / Receipt / Reset review — 2026-10-07
+### Development history
 
-- Branch: feature-receipt; PR target: main. Foundation on main includes payment merge 6782605.
-- Actual feature commit: a26f786798f088043eb44098b5920f02642f801d.
-- Subject: feat(receipt): add transaction confirmation receipt and reset.
-- Review confirmed scope is confirmation, immutable transaction snapshot, receipt, reset, related tests and documentation. Corresponding TASKLIST tasks are DONE for the recorded verification scope.
-- node --check script.js, node tests/cart.test.cjs, and git diff --check passed. Tests execute actual handlers in simulated DOM; no browser/touch/console test is claimed.
-- Exact receipt total ₱140, Cash paid ₱200, change ₱60 passed; invalid payment guards, two distinct references, cart-independent snapshots, complete reset, and subsequent Cookies/QR transaction passed.
-- Push attempted: git push -u origin feature-receipt with credential.interactive=never. Exit 1: Cannot prompt because user interactivity has been disabled; unable to get password from user. Successful push is not claimed.
-- PR description prepared in RECEIPT_PR_DESCRIPTION.md. GitHub CLI is unavailable and this branch push is blocked by credentials; no PR creation is claimed.
-- After authenticating, push feature-receipt and open https://github.com/kkey-byte/midtern-pos-kiosk/compare/main...feature-receipt with base main and compare feature-receipt. Use the feature commit subject as title and the prepared description. Create a draft PR; do not merge.
-- Feature hash evidence and PR description are recorded in a separate documentation commit so the actual feature hash can be preserved. No merge performed.
+| Stage | Actual commit/evidence | Audit finding |
+| --- | --- | --- |
+| Initialization | ee8015f and foundation documentation 57e8b34 | HTML/CSS/JS/README/ten docs committed |
+| Products | 8ef5aa6 on feature-products and origin/feature-products | Product UI commit changes application and relevant docs; PR #1 open |
+| Cart | 19ef538, evidence 397b64c; merge 175bf65 | Application, tests and docs; PR #2 merged |
+| Checkout | d011199, evidence 255c043 on local/remote feature-checkout | Summary/Back application and tests/docs; PR #3 open draft; its UI was restored into payment dependency rather than its original commits merged |
+| Payment | 2d55d6d, evidence 5912d05; merge 6782605 | Cash/QR/Card application, tests/docs; PR #4 merged |
+| Receipt/reset | a26f786, evidence f6c642a; merge 639bee0 | Confirmation/snapshot/receipt/reset application and tests/docs; PR #5 merged |
+| Validation | 32fd371, evidence 76f7fa3 | Real quantity/state recovery guards and feedback/tests; pushed, not in main; no PR exists |
+| Genuine bug fixes | Validation stage reproduced invalid-product render error, corrupt negative quantity, invalid shared completion | Corrections recorded during validation; receipt integration already supplied shared completion validation. No separate fix: commit or dedicated bug-fix PR. Later investigation found no genuine defect and created no artificial fix |
+| Refactor | 183f868 | Application structure/state/lookup/event cleanup plus adjusted tests/architecture; pushed, not in main |
+| Testing | tests/cart.test.cjs appears in cart/checkout/payment/receipt/validation/refactor commits; TEST_PLAN_RESULTS.md records actual checks | Genuine versioned tests; no standalone test commit required/claimed. Instructor browser acceptance remains incomplete |
+| Documentation | Foundation and feature evidence commits plus current synchronized README/ten docs | Existing committed history meaningful; final documentation changes are still uncommitted |
 
-## Existing repository
+Commit subjects were checked against actual changed-file lists and reviewed source/test changes from prior stages, not merely accepted by title. All six feature branches exist locally and remotely with actual distinct development commits and graph ancestry. Git does not prove how a branch was originally created or who performed every editing step; no such unsupported provenance is claimed.
 
-[kkey-byte/midtern-pos-kiosk](https://github.com/kkey-byte/midtern-pos-kiosk)
+### Live PR evidence
 
-Origin fetch and push URL: https://github.com/kkey-byte/midtern-pos-kiosk.git
+Public API query: https://api.github.com/repos/kkey-byte/midtern-pos-kiosk/pulls?state=all&per_page=30.
 
-Local repository: C:\Users\Asus\midterm-pos-kioskk\midtern-pos-kiosk
+| PR | Head → base | Verified status | Merge timestamp (UTC) |
+| --- | --- | --- | --- |
+| [#1](https://github.com/kkey-byte/midtern-pos-kiosk/pull/1) | feature-products → main | Open, not draft, not merged | None |
+| [#2](https://github.com/kkey-byte/midtern-pos-kiosk/pull/2) | feature-cart → main | Closed, merged | 2026-10-07T10:07:26Z |
+| [#3](https://github.com/kkey-byte/midtern-pos-kiosk/pull/3) | feature-checkout → main | Open draft, not merged | None |
+| [#4](https://github.com/kkey-byte/midtern-pos-kiosk/pull/4) | feature-payment → main | Closed, merged | 2026-10-07T10:50:49Z |
+| [#5](https://github.com/kkey-byte/midtern-pos-kiosk/pull/5) | feature-receipt → main | Closed, merged | 2026-10-07T11:28:34Z |
 
-Current branch at inspection: main.
+No feature-validation PR returned in the complete five-PR listing. PR existence/merge metadata does not establish reviewer approval or completed browser tests; those were not audited through review records.
 
-## Recorded local evidence
+### Working tree and missing evidence
 
-- Repository exists locally with a .git directory.
-- Initial inspection reported no commits and no tracked project files.
-- Reviewed git status, git diff, all foundation source files, and project documentation before committing. Since the files were initially untracked, the staged diff was inspected after staging.
-- The foundation contains 14 files: index.html, style.css, script.js, README.md, and ten docs/ Markdown files. No POS functionality is implemented.
-- JavaScript syntax validation and staged whitespace checks passed. Browser rendering and console checks remain unverified as recorded in TEST_PLAN_RESULTS.md.
-- Foundation commit: ee8015f0ceb46e8048c95ae054dbfcdd021878e1.
-- Commit subject: chore: initialize touchscreen POS kiosk project.
-- [View foundation commit](https://github.com/kkey-byte/midtern-pos-kiosk/commit/ee8015f0ceb46e8048c95ae054dbfcdd021878e1).
-- On 2026-10-07, git push -u origin main completed successfully with exit code 0, reporting a new main branch and tracking configuration for origin/main.
-- The foundation commit exists locally. The working tree was clean after the foundation commit and push, before this evidence update.
-- This evidence update is recorded in a separate documentation commit because the foundation commit cannot contain its own final hash.
-- No new GitHub repository was created.
+- Current branch feature-validation; HEAD and freshly fetched origin/feature-validation both 183f86890fdd685d1d803c2d6c21df27adb5c75e. No committed changes ahead/behind its remote.
+- main/origin/main both 639bee0b2d188b56719dbc83ebc109733187bd5e. feature-validation has three commits beyond main: 32fd371, 76f7fa3, 183f868.
+- Working tree is NOT clean: README.md and all ten foundation docs are modified and unstaged. This audit updates only GITHUB_EVIDENCE.md; existing documentation changes are preserved.
+- Missing final documentation commit/push, validation/refactor PR and reviewed merge into main, disposition of open product/checkout PRs, and real-browser startup/touch/visibility/console acceptance evidence.
+- Product/summary functionality is present through later integrated feature work, but that does not turn PR #1/#3 into merged PRs or make their original commits ancestors of main.
+- Retained validation stash appears in --all graph as backup, not a feature-delivery commit.
+- No history rewrite, fabricated fix/test commit, commit, push, PR mutation or merge performed during this audit. No automated green CI or reviewer approval claimed.
 
-## Evidence to collect later
+## Repository and observed refs — 2026-10-07
+Existing repository: [kkey-byte/midtern-pos-kiosk](https://github.com/kkey-byte/midtern-pos-kiosk). Origin: https://github.com/kkey-byte/midtern-pos-kiosk.git.
+Local checkout: C:\Users\Asus\midterm-pos-kioskk\midtern-pos-kiosk.
+Current branch: feature-validation.
 
-## Focused Payment review — 2026-10-07
+Local HEAD and cached origin/feature-validation both point to 183f86890fdd685d1d803c2d6c21df27adb5c75e. Local main and cached origin/main point to 639bee0b2d188b56719dbc83ebc109733187bd5e. These are actual local Git observations, not a fresh live GitHub check or evidence of a validation PR/merge. Documentation changes are uncommitted.
 
-- Branch: feature-payment; intended PR base: main.
-- Local feature commit: 2d55d6d9c38e017c448c25fe1e085ed5d833dc9d.
-- Subject: feat(payment): implement cash QR and card payment flows.
-- Focused tests passed: Cash ₱100 rejected against ₱140, exact ₱140/change ₱0, ₱200/change ₱60; QR/Card paid=₱140 and change=₱0; every method Back chain preserves the authoritative order.
-- Actual tests: node --check script.js, node tests/cart.test.cjs (simulated DOM/registered handlers and controlled card timer), source assertions, and Git whitespace checks. No real browser or elapsed timing result is claimed.
-- Payment task is DONE for this verification scope. No genuine application defect was found in the focused test.
-- Push attempted with saved credentials and failed: Cannot prompt because user interactivity has been disabled; unable to get password from user. No successful payment push is claimed.
-- PR description prepared in PAYMENT_PR_DESCRIPTION.md. No payment PR was created. Authenticate Git, run git push -u origin feature-payment, then create a draft PR from feature-payment into main. No merge performed.
-- This documentation follow-up records the actual feature hash; its own final hash is available in git log.
-
-## Cart feature — 2026-10-07
-
-- Branch: feature-cart, targeting main.
-- Feature commit: 19ef5380e41e501fa3526a54fce3aaa430949432.
-- Subject: feat(cart): add quantity controls and order calculations.
-- [Feature commit](https://github.com/kkey-byte/midtern-pos-kiosk/commit/19ef5380e41e501fa3526a54fce3aaa430949432).
-- git push -u origin feature-cart succeeded with exit code 0 and reported a new feature-cart branch, tracking origin/feature-cart.
-- Review reran node --check script.js, node tests/cart.test.cjs, and Git whitespace checks successfully. Exact totals verified: ₱175 → ₱220 → ₱175 → ₱140. Tests invoke actual registered event handlers in a simulated DOM; real browser/touch/console checks remain unperformed.
-- Cart Management is DONE for verified logic and simulated DOM output; browser integration remains pending.
-- PR description is prepared in CART_PR_DESCRIPTION.md. GitHub CLI is unavailable; no cart PR creation is claimed.
-- [Prepare cart PR](https://github.com/kkey-byte/midtern-pos-kiosk/compare/main...feature-cart).
-- This branch includes the product UI restored from feature-products because PR #1 was not merged when feature-cart was created. No Order Summary/payment logic was added and no merge was performed.
-- This evidence update is a separate documentation commit so it can record the actual feature hash and successful push.
-
-| Evidence | Status |
+## Actual commits visible in history
+| Hash | Subject |
 | --- | --- |
-| Authorized initialization commit and SHA | Recorded above |
-| Authorized foundation push | Successful; Git push reported main -> main |
-| GitHub browser file verification | Not performed; push evidence comes from Git |
-| Implementation commits linked to stages | Pending |
-| Completed transaction flow demonstration | Pending |
-| Test results and screenshots | Pending |
+| ee8015f0ceb46e8048c95ae054dbfcdd021878e1 | chore: initialize touchscreen POS kiosk project |
+| 57e8b344fbbcb6d20a48265b48a0024359046716 | docs: record foundation commit and push evidence |
+| 19ef5380e41e501fa3526a54fce3aaa430949432 | feat(cart): add quantity controls and order calculations |
+| 397b64c861f26c9fc596a1d5c72d3cfc5fe2b86a | docs: record cart feature commit and push evidence |
+| 175bf659f16f0237dbfe0adaa8ca438538830c2c | Merge pull request #2 from kkey-byte/feature-cart |
+| 2d55d6d9c38e017c448c25fe1e085ed5d833dc9d | feat(payment): implement cash QR and card payment flows |
+| 5912d052df8fb0c76e2de8b841f524eda26f60ef | docs: record payment verification and commit evidence |
+| 67826054e5e458d879b8800672c208c0c14ede2b | Merge pull request #4 from kkey-byte/feature-payment |
+| a26f786798f088043eb44098b5920f02642f801d | feat(receipt): add transaction confirmation receipt and reset |
+| f6c642ae3856c30857222c0653bc057ddc7b86d0 | docs: record receipt verification and PR evidence |
+| 639bee0b2d188b56719dbc83ebc109733187bd5e | Merge pull request #5 from kkey-byte/feature-receipt |
+| 32fd371535e7fbdd5891734194d50efff4678ffe | feat(validation): enforce payment and quantity validation |
+| 76f7fa336efa134e703e54edcad216e214e8016b | docs: record validation review and PR evidence |
+| 183f86890fdd685d1d803c2d6c21df27adb5c75e | refactor: centralize order and transaction logic |
 
-Replace pending entries with actual commit links, dates, and evidence after the corresponding work is authorized and verified. Never invent commit identifiers or GitHub results.
+feature-products local ref is 8ef5aa692b3f92c42691257a6813825069f31040; feature-checkout is 255c0433a3ca3609e3a302167727a15a2429ee7a. Do not infer their PR merge status from branch existence.
+
+## Recorded operations
+Foundation and cart pushes succeeded during earlier work. Assistant payment/receipt/validation push attempts failed to obtain credentials noninteractively; those failure reports remain historical facts. Later user activity brought branch refs and merged receipt history into the checkout. Current matching cached origin/feature-validation establishes synchronization with the last known remote state; no new successful push is claimed during documentation finalization.
+
+PR #2/#4/#5 merges are visible in local Git history. User screenshots previously showed receipt PR #5. A validation PR is not verified. docs/CART_PR_DESCRIPTION.md, PAYMENT_PR_DESCRIPTION.md, RECEIPT_PR_DESCRIPTION.md, VALIDATION_PR_DESCRIPTION.md are prepared historical descriptions, not proof of live PR status. No validation merge or deployment is claimed.
+
+## Verification and remaining evidence
+Actual simulated DOM transaction tests, syntax and whitespace checks passed; instructor browser startup/visibility/touch/console remain NOT VERIFIED. TEST_PLAN_RESULTS.md contains exact scenarios/results. No browser screenshots, full acceptance certification, new commit, push, PR or merge were created in this documentation stage.

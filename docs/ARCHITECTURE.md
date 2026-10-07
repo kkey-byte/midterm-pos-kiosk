@@ -1,58 +1,43 @@
 # Architecture
 
-## Refactored organization — 2026-10-07
+## Files and boundaries
+index.html defines semantic screens and native controls. style.css defines kiosk layout, responsive rules, touch-sized buttons and focus feedback. script.js owns application logic. No backend, database, persistence, packages, authentication or real payment APIs.
 
-script.js follows fifteen conceptual sections: Product Data, Application State, DOM References, Utility Functions, Cart Operations, Calculations, Rendering, Navigation, Payment Validation, Payment Processing, Transaction Logic, Receipt Rendering, Reset Logic, Event Listeners, and Initialization.
+## JavaScript organization
+1. Product Data
+2. Application State
+3. DOM References
+4. Utility Functions
+5. Cart Operations
+6. Calculations
+7. Rendering
+8. Navigation
+9. Payment Validation
+10. Payment Processing
+11. Transaction Logic
+12. Receipt Rendering
+13. Reset Logic
+14. Event Listeners
+15. Initialization
 
-applicationState owns the single cart Map, current screen, selected method, processing flag, payment result, and frozen completed snapshot. Cart and screen no longer have separate mutable globals. calculateSubtotal and calculateTotal remain the shared calculation functions. getProduct centralizes catalog lookup; getElement lazily caches static DOM references, retrying absent elements to preserve safe initialization. Generated product/cart/receipt children are not cached.
+applicationState contains the authoritative cart Map and current screen, method, accepted payment result, processing flag and completed snapshot. getElement lazily caches static elements and retries absent elements. Generated rows are not cached. getProduct centralizes catalog lookup. bindEventListeners separates registration from initializeApplication.
 
-bindEventListeners handles registration separately from initializeApplication. clearCompletedPayment centralizes clearing the completed result/snapshot, called by processing setup and reset rather than cash rendering. Card delay remains 1500ms through CARD_PROCESSING_DELAY_MS. Payment guards, customer messages, snapshot fields, receipt content, and reset behavior are unchanged.
+## Order calculations
+Cart Map holds IDs and quantities only. Catalog supplies names and whole-peso prices. calculateSubtotal = catalog price × cart quantity; calculateTotal sums the shared subtotals. Renders reuse these functions and formatPrice. Summary does not clone the mutable cart.
 
-HTML changes only correct cash-panel indentation. CSS removes an unused reset-availability rule after that element was removed. No new dependencies or features are introduced.
+## Navigation
+navigateTo validates screen/method/cart/completion prerequisites, renders the target and toggles hidden sections, label and heading focus. Back preserves the cart. Invalid cart entries are sanitized before Item Selection rendering; corrupted current screen recovers with customer feedback. Confirmation/receipt render saved values independently of later cart edits.
 
-## Current foundation
+## Payments
+validateAmountPaid accepts numeric text with up to two decimals, finite/non-negative values, safe integer cents and sufficient funds. Cash change uses integer cents. QR uses explicit simulated confirmation. Card sets a synchronous flag, disables Process/Back and sets aria-busy before scheduling CARD_PROCESSING_DELAY_MS=1500. Callback validates captured order signature before completing. The signature is transient validation data, not another cart.
 
-- index.html: HTML5 document, application container, heading, stylesheet link, and deferred script.
-- style.css: Basic reset, readable typography, and kiosk container styling.
-- script.js: Six-product catalog, a single Map cart state, focused mutation functions, shared subtotal/total calculations, and product/cart rendering. Every successful mutation re-renders cart values. Names and prices come from the catalog rather than duplicated cart records.
-- docs/: Project decisions, requirements, planning, and evidence records.
+completeSimulatedPayment revalidates processing state, catalog/order, selected method, total and paid/change rules and prevents repeated completion. clearCompletedPayment centralizes accepted-result/snapshot clearing during processing setup and reset.
 
-## Planned application design
+## Completed transaction and receipt
+Snapshot fields: reference, dateTime, items, total, paymentMethod, amountPaid, change, status='completed'. Each item copies productId, name, unitPrice, quantity, subtotal. Snapshot, array and item records are frozen. Reference is POS- plus crypto.randomUUID; timestamp is ISO. Confirmation and renderReceipt use the snapshot, with textContent. Receipt time text and datetime attribute are identical.
 
-Card simulation extends the existing processing section with a third panel. applicationState.cardProcessing is the synchronous lock: processCardPayment sets it before scheduling a 1500ms callback, and navigation is blocked while it is true. Process and Back controls are disabled and the panel exposes aria-busy. The callback rechecks cart validity and an order signature before calling shared completeSimulatedPayment. The signature is transient validation data, not a duplicate mutable cart. Changed/invalid orders release the lock and display feedback without a payment result.
+## Reset
+startNewTransaction requires a completed receipt, clears state and input/errors, releases processing controls, clears hidden summary/receipt rows and success/receipt fields (including datetime), then returns to Item Selection with total ₱0 and Continue disabled. No transaction history is retained.
 
-QR processing extends the same payment-processing screen with mutually exclusive Cash/QR panels. renderPaymentProcessing resets the transient result and shows the selected method panel. confirmQRPayment validates screen/method/cart, then passes total, amountPaid = total, change = 0, and paymentMethod = QR Payment to completeSimulatedPayment. Cash now uses this same completion function. applicationState.paymentResult replaces the earlier cashPayment field so there is one authoritative accepted payment result. No external provider calls or QR data are used.
-
-Cash processing is now implemented on feature-payment. renderCashProcessing resets transient cash result/input/error and reads calculateTotal. validateAmountPaid returns either an error or validated monetary values; decimal input allows at most two places and change is calculated in integer cents. processCashPayment handles form submission, retains processing on rejection, and assigns applicationState.cashPayment only after validation passes. Navigation requires Cash selection and permits Payment Successful only from processing with an accepted cash result. Success creates no transaction ledger or receipt. Earlier method-only statements describe the prior checkpoint.
-
-Payment Method selection is implemented on feature-payment using applicationState.selectedPaymentMethod and an allowlisted method catalog. selectPaymentMethod updates only the method identifier, and renderPaymentSelection updates aria-pressed and visible status. Back reads the existing cart to regenerate summary. Order Summary UI was restored from feature-checkout, whose branch was not merged into main. Payment selection does not process or complete a transaction.
-
-Implemented cart: addToCart, increaseQuantity, decreaseQuantity, and removeFromCart update the single cart Map. calculateSubtotal multiplies catalog unit price by current quantity; calculateTotal sums calculateSubtotal results. renderCart uses those same functions and formatPrice, avoiding duplicated calculations. Decreasing to zero removes the item. Catalog prices are currently exact whole-peso values. DOM labels use textContent and accessible native buttons with 56px minimum-size quantity controls.
-
-The browser renders all screens and owns all transaction state. A hard-coded product catalog in JavaScript supplies product data. In-memory state will hold the current screen, selected items and quantities, selected simulated payment method, processing status, and completed transaction snapshot.
-
-JavaScript will render the relevant screen from state and handle user events. Validate events and transitions before changing state. Derive totals from catalog prices and quantities; use integer minor currency units to avoid floating-point rounding errors. The currency and catalog content remain to be confirmed before implementation.
-
-Payment processing is a local simulation. A completed transaction snapshot supplies the receipt. Starting a new transaction clears transaction-specific state and returns to Item Selection.
-
-## Screen sequence
-
-Item Selection → Order Summary → Payment Method → Payment Processing → Payment Successful → Receipt → New Transaction → Item Selection
-
-## Boundaries
-
-No backend, database, persistent application storage, authentication, package dependencies, or real payment API. No card numbers or payment credentials are needed. Reloading loses the current transaction.
-
-The planned design above has not yet been implemented.
-
-## Completed transaction snapshot
-
-Valid simulated payment completion creates one deeply frozen `applicationState.completedTransaction`. It copies catalog details and cart quantities into item records, with calculated subtotals, total, selected method, paid amount, change, completed status, ISO dateTime, and a `POS-` reference generated by `crypto.randomUUID()`. Confirmation renders from this snapshot rather than the live cart. No receipt or reset behavior is introduced in this stage. Browser execution requires support for crypto.randomUUID (a secure context such as localhost).
-
-## Digital receipt
-
-View Receipt navigates from Payment Successful to the receipt screen only with a completed snapshot. renderReceipt reads copied item fields and saved payment amounts, formats currency, and uses textContent for dynamic content. The ISO dateTime is displayed exactly and set on a semantic time element. No live cart calculations are used. NEW TRANSACTION is a disabled large button until the reset stage.
-
-## New Transaction reset
-
-startNewTransaction is bound to the receipt button and requires a completed receipt transaction. It clears the authoritative cart Map, selected method, payment result, completed snapshot, input, validation, and processing lock. It removes hidden summary/receipt rows and clears success/receipt fields (including the time datetime attribute), resets payment totals and controls, then navigates to Item Selection. No transaction history is retained by the application.
+## Verification
+Regression and Cash/QR/Card-to-receipt/reset probes passed simulated DOM tests. Browser/touch/console and real elapsed delay checks remain pending. Existing Node is test tooling only.
