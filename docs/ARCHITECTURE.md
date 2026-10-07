@@ -1,5 +1,15 @@
 # Architecture
 
+## Refactored organization — 2026-10-07
+
+script.js follows fifteen conceptual sections: Product Data, Application State, DOM References, Utility Functions, Cart Operations, Calculations, Rendering, Navigation, Payment Validation, Payment Processing, Transaction Logic, Receipt Rendering, Reset Logic, Event Listeners, and Initialization.
+
+applicationState owns the single cart Map, current screen, selected method, processing flag, payment result, and frozen completed snapshot. Cart and screen no longer have separate mutable globals. calculateSubtotal and calculateTotal remain the shared calculation functions. getProduct centralizes catalog lookup; getElement lazily caches static DOM references, retrying absent elements to preserve safe initialization. Generated product/cart/receipt children are not cached.
+
+bindEventListeners handles registration separately from initializeApplication. clearCompletedPayment centralizes clearing the completed result/snapshot, called by processing setup and reset rather than cash rendering. Card delay remains 1500ms through CARD_PROCESSING_DELAY_MS. Payment guards, customer messages, snapshot fields, receipt content, and reset behavior are unchanged.
+
+HTML changes only correct cash-panel indentation. CSS removes an unused reset-availability rule after that element was removed. No new dependencies or features are introduced.
+
 ## Current foundation
 
 - index.html: HTML5 document, application container, heading, stylesheet link, and deferred script.

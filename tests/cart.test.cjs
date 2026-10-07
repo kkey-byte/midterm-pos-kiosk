@@ -1,4 +1,4 @@
-// Run with the existing Node runtime: node tests/cart.test.cjs
+// Run with the existing Node runtime: node tests/applicationState.cart.test.cjs
 // This verifies application logic and rendered output using a simulated DOM.
 const fs = require('node:fs');
 const vm = require('node:vm');
@@ -85,23 +85,23 @@ console.log('PASS: Remove Soft Drink; total ₱140.');
 control('Coffee', 'Decrease Coffee quantity');
 control('Coffee', 'Decrease Coffee quantity');
 for (let count = 0; count < 5; count++) run("decreaseQuantity('coffee')");
-assert.equal(run("cart.has('coffee')"), false); total(50);
+assert.equal(run("applicationState.cart.has('coffee')"), false); total(50);
 run("removeFromCart('sandwich')"); total(0);
 assert.equal(nodes['empty-order'].hidden, false);
 run("addToCart('invalid'); increaseQuantity('invalid'); decreaseQuantity('invalid')");
-total(0); assert.equal(run('cart.size'), 0);
+total(0); assert.equal(run('applicationState.cart.size'), 0);
 assert.equal(run("calculateSubtotal('invalid')"), 0);
 tap('coffee'); row('Coffee', 1, 45); total(45);
 console.log('PASS: Quantity reaching zero removes the row; repeated decreases cannot produce negative quantities; empty total, invalid IDs, and re-addition verified.');
 
-run('cart.clear(); renderCart()');
+run('applicationState.cart.clear(); renderCart()');
 assert.equal(nodes['selection-continue'].disabled, true);
 tap('coffee'); tap('coffee'); tap('sandwich');
 total(140);
 assert.equal(nodes['selection-continue'].disabled, false);
-const originalCart = run('cart');
+const originalCart = run('applicationState.cart');
 nodes['selection-continue'].listeners.click();
-assert.equal(run('currentScreen'), 'order-summary');
+assert.equal(run('applicationState.currentScreen'), 'order-summary');
 assert.equal(nodes['item-selection'].hidden, true);
 assert.equal(nodes['order-summary'].hidden, false);
 const expectedSummary = [
@@ -113,31 +113,31 @@ nodes['summary-items'].children.forEach((item, index) => {
   assert.deepEqual(item.children.map((child) => child.textContent), expectedSummary[index]);
 });
 assert.equal(nodes['summary-total'].textContent, '₱140.00');
-assert.equal(run('cart'), originalCart);
+assert.equal(run('applicationState.cart'), originalCart);
 console.log('PASS: Summary exactly matches Coffee ×2 (₱45 unit, ₱90 subtotal), Sandwich ×1 (₱50 unit/subtotal), total ₱140; same cart object.');
 nodes['summary-back'].listeners.click();
-assert.equal(run('currentScreen'), 'item-selection');
+assert.equal(run('applicationState.currentScreen'), 'item-selection');
 assert.equal(nodes['item-selection'].hidden, false);
 assert.equal(nodes['order-summary'].hidden, true);
 row('Coffee', 2, 90); row('Sandwich', 1, 50); total(140);
-assert.equal(run('cart'), originalCart);
+assert.equal(run('applicationState.cart'), originalCart);
 console.log('PASS: BACK preserves both items, quantities, subtotals, total, and authoritative cart object.');
 nodes['selection-continue'].listeners.click();
 nodes['summary-continue'].listeners.click();
-assert.equal(run('currentScreen'), 'payment-method');
+assert.equal(run('applicationState.currentScreen'), 'payment-method');
 assert.equal(nodes['payment-method'].hidden, false);
 total(140);
 nodes['payment-back'].listeners.click();
-assert.equal(run('currentScreen'), 'order-summary');
-console.log('PASS: CONTINUE TO PAYMENT opens Payment Method; return to summary preserves cart.');
-run("cart.clear(); navigateTo('order-summary')");
-assert.equal(run('currentScreen'), 'item-selection');
+assert.equal(run('applicationState.currentScreen'), 'order-summary');
+console.log('PASS: CONTINUE TO PAYMENT opens Payment Method; return to summary preserves applicationState.cart.');
+run("applicationState.cart.clear(); navigateTo('order-summary')");
+assert.equal(run('applicationState.currentScreen'), 'item-selection');
 assert.ok(nodes['navigation-message'].textContent.includes('Please choose'));
 total(0);
-for (const invalid of ["cart.set('unknown', 1)", "cart.set('coffee', -1)", "cart.set('coffee', 0)", "cart.set('coffee', 1.5)", "cart.set('coffee', NaN)"]) {
-  run(`cart.clear(); ${invalid}; navigateTo('order-summary')`);
-  assert.equal(run('currentScreen'), 'item-selection');
-  assert.equal(run('cart.size'), 0);
+for (const invalid of ["applicationState.cart.set('unknown', 1)", "applicationState.cart.set('coffee', -1)", "applicationState.cart.set('coffee', 0)", "applicationState.cart.set('coffee', 1.5)", "applicationState.cart.set('coffee', NaN)"]) {
+  run(`applicationState.cart.clear(); ${invalid}; navigateTo('order-summary')`);
+  assert.equal(run('applicationState.currentScreen'), 'item-selection');
+  assert.equal(run('applicationState.cart.size'), 0);
   assert.equal(nodes['selection-continue'].disabled, true);
   assert.ok(nodes['navigation-message'].textContent.includes('Please choose'));
   total(0);
@@ -147,7 +147,7 @@ console.log('PASS: Empty and invalid carts return safely to Item Selection with 
 tap('coffee'); tap('coffee'); tap('sandwich');
 nodes['selection-continue'].listeners.click();
 nodes['summary-continue'].listeners.click();
-const paymentCart = run('cart');
+const paymentCart = run('applicationState.cart');
 for (const [id, label] of [['cash', 'Cash'], ['qr', 'QR Payment'], ['card', 'Credit/Debit Card']]) {
   nodes[`payment-${id}`].listeners.click();
   assert.equal(run('applicationState.selectedPaymentMethod'), id);
@@ -155,10 +155,10 @@ for (const [id, label] of [['cash', 'Cash'], ['qr', 'QR Payment'], ['card', 'Cre
   for (const other of ['cash', 'qr', 'card']) {
     assert.equal(nodes[`payment-${other}`]['aria-pressed'], String(other === id));
   }
-  assert.equal(run('currentScreen'), 'payment-method');
+  assert.equal(run('applicationState.currentScreen'), 'payment-method');
   nodes['payment-back'].listeners.click();
-  assert.equal(run('currentScreen'), 'order-summary');
-  assert.equal(run('cart'), paymentCart);
+  assert.equal(run('applicationState.currentScreen'), 'order-summary');
+  assert.equal(run('applicationState.cart'), paymentCart);
   row('Coffee', 2, 90); row('Sandwich', 1, 50); total(140);
   assert.equal(nodes['summary-total'].textContent, '₱140.00');
   nodes['summary-continue'].listeners.click();
@@ -168,11 +168,11 @@ for (const [id, label] of [['cash', 'Cash'], ['qr', 'QR Payment'], ['card', 'Cre
 }
 run("selectPaymentMethod('invalid')");
 assert.equal(run('applicationState.selectedPaymentMethod'), 'card');
-assert.deepEqual(Array.from(run('Object.keys(applicationState)')), ['selectedPaymentMethod', 'paymentResult', 'cardProcessing', 'completedTransaction']);
+assert.deepEqual(Array.from(run('Object.keys(applicationState)')), ['cart', 'currentScreen', 'selectedPaymentMethod', 'paymentResult', 'cardProcessing', 'completedTransaction']);
 console.log('PASS: Invalid method ignored; state stores only the method identifier, no payment credentials; no transaction completed.');
-run("cart.set('unknown', 1); selectPaymentMethod('cash')");
-assert.equal(run('currentScreen'), 'item-selection');
-assert.equal(run("cart.has('unknown')"), false);
+run("applicationState.cart.set('unknown', 1); selectPaymentMethod('cash')");
+assert.equal(run('applicationState.currentScreen'), 'item-selection');
+assert.equal(run("applicationState.cart.has('unknown')"), false);
 assert.equal(run('applicationState.selectedPaymentMethod'), null);
 total(140);
 console.log('PASS: Invalid cart during method selection returns safely with valid items preserved and method reset.');
@@ -184,7 +184,7 @@ function enterCashProcessing() {
   nodes['payment-cash'].listeners.click();
   assert.equal(nodes['payment-process'].disabled, false);
   nodes['payment-process'].listeners.click();
-  assert.equal(run('currentScreen'), 'payment-processing');
+  assert.equal(run('applicationState.currentScreen'), 'payment-processing');
   assert.equal(nodes['cash-total'].textContent, '₱140.00');
 }
 function pay(value) {
@@ -195,10 +195,10 @@ function pay(value) {
 }
 enterCashProcessing();
 run("navigateTo('payment-successful')");
-assert.equal(run('currentScreen'), 'payment-processing');
+assert.equal(run('applicationState.currentScreen'), 'payment-processing');
 for (const value of ['100', '', '   ', 'abc', '-1', 'Infinity', '-Infinity', 'NaN', '1e309', '200.001', '9007199254740992']) {
   pay(value);
-  assert.equal(run('currentScreen'), 'payment-processing');
+  assert.equal(run('applicationState.currentScreen'), 'payment-processing');
   assert.equal(run('applicationState.paymentResult'), null);
   assert.equal(nodes['payment-successful'].hidden, true);
   assert.ok(nodes['cash-error'].textContent.length > 0);
@@ -207,7 +207,7 @@ for (const value of ['100', '', '   ', 'abc', '-1', 'Infinity', '-Infinity', 'Na
   console.log(`PASS: Amount ${JSON.stringify(value)} rejected with message; stays processing; no success, transaction, receipt, or payment result.`);
 }
 pay('200');
-assert.equal(run('currentScreen'), 'payment-successful');
+assert.equal(run('applicationState.currentScreen'), 'payment-successful');
 assert.equal(run('applicationState.paymentResult.amountPaid'), 200);
 assert.equal(run('applicationState.paymentResult.change'), 60);
 assert.equal(nodes['cash-change-result'].textContent, '₱60.00');
@@ -218,7 +218,7 @@ assert.equal(run('applicationState.paymentResult'), acceptedPayment);
 console.log('PASS: Total ₱140, paid ₱200 → change ₱60; repeated submission after success ignored.');
 enterCashProcessing();
 pay('140');
-assert.equal(run('currentScreen'), 'payment-successful');
+assert.equal(run('applicationState.currentScreen'), 'payment-successful');
 assert.equal(run('applicationState.paymentResult.change'), 0);
 assert.equal(nodes['cash-change-result'].textContent, '₱0.00');
 console.log('PASS: Total ₱140, paid ₱140 → change ₱0.');
@@ -234,17 +234,17 @@ nodes['summary-continue'].listeners.click();
 nodes['payment-qr'].listeners.click();
 assert.equal(nodes['payment-process'].disabled, false);
 nodes['payment-process'].listeners.click();
-assert.equal(run('currentScreen'), 'payment-processing');
+assert.equal(run('applicationState.currentScreen'), 'payment-processing');
 assert.equal(nodes['qr-total'].textContent, '₱140.00');
 assert.equal(nodes['qr-processing-panel'].hidden, false);
 assert.equal(nodes['cash-processing-panel'].hidden, true);
 assert.equal(run('applicationState.paymentResult'), null);
 nodes['cash-back'].listeners.click();
-assert.equal(run('currentScreen'), 'payment-method');
+assert.equal(run('applicationState.currentScreen'), 'payment-method');
 total(140);
 nodes['payment-process'].listeners.click();
 nodes['qr-confirm'].listeners.click();
-assert.equal(run('currentScreen'), 'payment-successful');
+assert.equal(run('applicationState.currentScreen'), 'payment-successful');
 assert.equal(run('applicationState.paymentResult.total'), 140);
 assert.equal(run('applicationState.paymentResult.amountPaid'), 140);
 assert.equal(run('applicationState.paymentResult.change'), 0);
@@ -262,9 +262,9 @@ nodes['selection-continue'].listeners.click();
 nodes['summary-continue'].listeners.click();
 nodes['payment-qr'].listeners.click();
 nodes['payment-process'].listeners.click();
-run('cart.clear()');
+run('applicationState.cart.clear()');
 nodes['qr-confirm'].listeners.click();
-assert.equal(run('currentScreen'), 'payment-processing');
+assert.equal(run('applicationState.currentScreen'), 'payment-processing');
 assert.equal(run('applicationState.paymentResult'), null);
 assert.ok(nodes['qr-error'].textContent.length > 0);
 assert.equal(nodes['payment-successful'].hidden, true);
@@ -283,7 +283,7 @@ assert.equal(nodes['cash-processing-panel'].hidden, true);
 assert.equal(nodes['qr-processing-panel'].hidden, true);
 nodes['card-process'].listeners.click();
 assert.equal(run('applicationState.cardProcessing'), true);
-assert.equal(run('currentScreen'), 'payment-processing');
+assert.equal(run('applicationState.currentScreen'), 'payment-processing');
 assert.equal(run('applicationState.paymentResult'), null);
 assert.equal(nodes['payment-successful'].hidden, true);
 assert.ok(nodes['card-status'].textContent.includes('Processing'));
@@ -292,13 +292,13 @@ assert.equal(nodes['cash-back'].disabled, true);
 assert.equal(nodes['card-processing-panel']['aria-busy'], 'true');
 for (let count = 0; count < 5; count++) nodes['card-process'].listeners.click();
 nodes['cash-back'].listeners.click();
-assert.equal(run('currentScreen'), 'payment-processing');
+assert.equal(run('applicationState.currentScreen'), 'payment-processing');
 assert.equal(timers.length, 1);
 assert.equal(timers[0].delay, 1500);
 console.log('PASS: Card displays due ₱140; Processing state visible, Process/Back disabled; six activations schedule only one 1500ms callback.');
 timers.shift().callback();
 assert.equal(run('applicationState.cardProcessing'), false);
-assert.equal(run('currentScreen'), 'payment-successful');
+assert.equal(run('applicationState.currentScreen'), 'payment-successful');
 assert.equal(run('applicationState.paymentResult.amountPaid'), 140);
 assert.equal(run('applicationState.paymentResult.change'), 0);
 assert.equal(run('applicationState.paymentResult.paymentMethod'), 'Credit/Debit Card');
@@ -317,9 +317,9 @@ nodes['summary-continue'].listeners.click();
 nodes['payment-card'].listeners.click();
 nodes['payment-process'].listeners.click();
 nodes['card-process'].listeners.click();
-run('cart.clear()');
+run('applicationState.cart.clear()');
 timers.shift().callback();
-assert.equal(run('currentScreen'), 'payment-processing');
+assert.equal(run('applicationState.currentScreen'), 'payment-processing');
 assert.equal(run('applicationState.paymentResult'), null);
 assert.equal(run('applicationState.cardProcessing'), false);
 assert.ok(nodes['card-error'].textContent.length > 0);
@@ -331,20 +331,20 @@ console.log('PASS: Changed/invalid order during card delay produces feedback wit
 
 run("navigateTo('item-selection')");
 tap('coffee'); tap('coffee'); tap('sandwich');
-const backCart = run('cart');
+const backCart = run('applicationState.cart');
 for (const method of ['cash', 'qr', 'card']) {
   nodes['selection-continue'].listeners.click();
   nodes['summary-continue'].listeners.click();
   nodes[`payment-${method}`].listeners.click();
   nodes['payment-process'].listeners.click();
   nodes['cash-back'].listeners.click();
-  assert.equal(run('currentScreen'), 'payment-method');
+  assert.equal(run('applicationState.currentScreen'), 'payment-method');
   nodes['payment-back'].listeners.click();
-  assert.equal(run('currentScreen'), 'order-summary');
+  assert.equal(run('applicationState.currentScreen'), 'order-summary');
   assert.equal(nodes['summary-total'].textContent, '₱140.00');
   nodes['summary-back'].listeners.click();
-  assert.equal(run('currentScreen'), 'item-selection');
-  assert.equal(run('cart'), backCart);
+  assert.equal(run('applicationState.currentScreen'), 'item-selection');
+  assert.equal(run('applicationState.cart'), backCart);
   row('Coffee', 2, 90); row('Sandwich', 1, 50); total(140);
   console.log(`PASS: ${method} processing Back → method Back → summary Back preserves Coffee ×2, Sandwich ×1, and ₱140 total.`);
 }
@@ -361,9 +361,9 @@ console.log('PASS: HTML source includes QR placeholder/instructions, card instru
 
 const referenceBaseline = referencesGenerated;
 nodes['view-receipt'].listeners.click();
-assert.equal(run('currentScreen'), 'item-selection');
+assert.equal(run('applicationState.currentScreen'), 'item-selection');
 run("navigateTo('payment-successful')");
-assert.equal(run('currentScreen'), 'item-selection');
+assert.equal(run('applicationState.currentScreen'), 'item-selection');
 enterCashProcessing();
 nodes['amount-paid'].value = '100';
 nodes['cash-payment-form'].listeners.submit({ preventDefault() {} });
@@ -393,7 +393,7 @@ assert.ok(firstTransaction.items.every(Object.isFrozen));
 assert.throws(() => run("'use strict'; applicationState.completedTransaction.items[0].quantity = 99"), /read only/);
 const firstSerialized = JSON.stringify(firstTransaction);
 nodes['view-receipt'].listeners.click();
-assert.equal(run('currentScreen'), 'receipt');
+assert.equal(run('applicationState.currentScreen'), 'receipt');
 assert.equal(nodes['receipt'].hidden, false);
 assert.equal(nodes['payment-successful'].hidden, true);
 assert.equal(nodes['receipt-reference'].textContent, firstTransaction.reference);
@@ -415,7 +415,7 @@ assert.ok(pageSource.includes('Touchscreen POS Kiosk — Digital Receipt'));
 assert.ok(pageSource.includes('id="new-transaction" class="continue-button" type="button">NEW TRANSACTION'));
 console.log('PASS: View Receipt displays snapshot reference/dateTime, Coffee ×2 at ₱45 = ₱90, Sandwich ×1 at ₱50 = ₱50, total ₱140, Cash paid ₱200, change ₱60, and Payment Successful.');
 console.log('PASS: Receipt without completion blocked; NEW TRANSACTION is enabled in HTML and has a registered handler.');
-run("addToCart('coffee'); cart.clear(); renderPaymentSuccessful()");
+run("addToCart('coffee'); applicationState.cart.clear(); renderPaymentSuccessful()");
 run('renderReceipt()');
 assert.equal(nodes['receipt-total'].textContent, '₱140.00');
 assert.equal(nodes['receipt-items'].children[0].children[1].textContent, 'Quantity: 2');
@@ -451,8 +451,8 @@ nodes['cash-error'].textContent = 'Previous cash error';
 nodes['navigation-message'].textContent = 'Previous navigation message';
 nodes['amount-paid'].setAttribute('aria-invalid', 'true');
 nodes['new-transaction'].listeners.click();
-assert.equal(run('currentScreen'), 'item-selection');
-assert.equal(run('cart.size'), 0);
+assert.equal(run('applicationState.currentScreen'), 'item-selection');
+assert.equal(run('applicationState.cart.size'), 0);
 total(0);
 assert.equal(run('applicationState.selectedPaymentMethod'), null);
 assert.equal(run('applicationState.paymentResult'), null);
@@ -480,7 +480,7 @@ for (const id of ['order-summary', 'payment-method', 'payment-processing', 'paym
 assert.equal(nodes['item-selection'].hidden, false);
 nodes['view-receipt'].listeners.click();
 nodes['new-transaction'].listeners.click();
-assert.equal(run('currentScreen'), 'item-selection');
+assert.equal(run('applicationState.currentScreen'), 'item-selection');
 assert.equal(run('applicationState.completedTransaction'), null);
 assert.equal(timers.length, 0);
 console.log('PASS: Receipt → NEW TRANSACTION clears cart/quantities, all totals, method, input, locks, validation, success, snapshot, and receipt DOM; Item Selection shows ₱0.00 with Continue disabled.');
@@ -509,19 +509,19 @@ assert.equal(nodes['receipt-method'].textContent, 'QR Payment');
 assert.equal(nodes['receipt-paid'].textContent, '₱25.00');
 assert.equal(nodes['receipt-change'].textContent, '₱0.00');
 nodes['new-transaction'].listeners.click();
-assert.equal(run('cart.size'), 0);
+assert.equal(run('applicationState.cart.size'), 0);
 assert.equal(run('applicationState.completedTransaction'), null);
 assert.equal(nodes['receipt-items'].children.length, 0);
 total(0);
 console.log('PASS: After reset, Cookies ×1 → summary → QR confirmation → new receipt completes for ₱25 paid/₱0 change with a new reference; second reset also succeeds.');
 
-run("cart.set('unknown', 1)");
+run("applicationState.cart.set('unknown', 1)");
 assert.doesNotThrow(() => run("navigateTo('item-selection')"));
-assert.equal(run("cart.has('unknown')"), false);
+assert.equal(run("applicationState.cart.has('unknown')"), false);
 assert.ok(nodes['navigation-message'].textContent.length > 0);
-run("cart.clear(); cart.set('coffee', -1); decreaseQuantity('coffee')");
-assert.equal(run("cart.has('coffee')"), false);
-run("cart.clear(); navigateTo('item-selection')");
+run("applicationState.cart.clear(); applicationState.cart.set('coffee', -1); decreaseQuantity('coffee')");
+assert.equal(run("applicationState.cart.has('coffee')"), false);
+run("applicationState.cart.clear(); navigateTo('item-selection')");
 tap('coffee'); tap('coffee'); tap('sandwich');
 enterCashProcessing();
 for (const result of [
@@ -531,11 +531,11 @@ for (const result of [
   {total:140,amountPaid:140,change:0,paymentMethod:'unknown'}
 ]) {
   run(`completeSimulatedPayment(${JSON.stringify(result)})`);
-  assert.equal(run('currentScreen'), 'payment-processing');
+  assert.equal(run('applicationState.currentScreen'), 'payment-processing');
   assert.equal(run('applicationState.paymentResult'), null);
 }
-run("navigateTo('item-selection'); currentScreen = 'unknown'; navigateTo('unknown')");
-assert.equal(run('currentScreen'), 'item-selection');
+run("navigateTo('item-selection'); applicationState.currentScreen = 'unknown'; navigateTo('unknown')");
+assert.equal(run('applicationState.currentScreen'), 'item-selection');
 assert.ok(nodes['navigation-message'].textContent.length > 0);
 console.log('PASS: Corrupted cart and screen state recover with friendly feedback; negative corrupted quantities removed; inconsistent completion rejected.');
 

@@ -226,3 +226,11 @@ Required unresolved checks: reference generation only after successful payment, 
 
 ## Combined audit after receipt integration — 2026-10-07
 Resolved stash conflicts preserving frozen snapshots, receipt/reset, and validation fixes. node tests/cart.test.cjs passed the full combined suite: invalid completion creates no reference, incomplete payment cannot open receipt, two valid references differ, receipt matches snapshot, reset clears state and hidden output, subsequent Cookies/QR transaction and second reset pass. Cart/cash/navigation/source/message assertions also passed. Browser checks remain unperformed. Prior missing-feature audit notes describe the earlier branch state and are now superseded.
+
+## Refactoring verification — 2026-10-07
+
+node --check script.js and the complete tests/cart.test.cjs suite passed after state references in the harness were updated. Existing assertions remain: exact cart calculations/removal/zero guards, cash rejection/exact/overpayment, QR/card processing and duplicates, Back state preservation, corrupted-state recovery, immutable snapshots/unique references, exact receipt values, reset and subsequent transaction, and source security/customer feedback.
+
+Additional in-memory probes ran all three methods through selection → summary → method → processing → success → receipt → reset. Each used Coffee ×2 and Sandwich ×1 total ₱140; Cash paid ₱200/change ₱60; QR/Card paid ₱140/change ₱0. All passed; reset cleared snapshot/cart/reference each time. An initial probe omitted clearing the cart left by the preceding harness and was correctly rejected for insufficient cash; correcting that setup produced the stated pass. No application behavior change was needed.
+
+Tests execute actual JavaScript/handlers with simulated DOM and controlled card timer; real browser rendering, console, touchscreen, and elapsed timing remain unverified. No refactor commit created.

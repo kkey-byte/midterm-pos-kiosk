@@ -56,15 +56,15 @@
     <section id="payment-processing" hidden aria-labelledby="processing-title">
       <h2 id="processing-title" tabindex="-1">Cash Payment Processing</h2>
       <div id="cash-processing-panel">
-      <p>Simulated cash payment only.</p>
-      <p class="order-total">Total Amount: <span id="cash-total">₱0.00</span></p>
-      <form id="cash-payment-form" novalidate>
-        <label for="amount-paid">Amount Paid (₱)</label>
-        <p id="amount-help">Enter a non-negative amount with up to two decimal places.</p>
-        <input id="amount-paid" name="amount-paid" type="text" inputmode="decimal" autocomplete="off" aria-describedby="amount-help cash-error">
-        <p id="cash-error" role="alert"></p>
-        <button id="cash-pay-now" class="continue-button" type="submit">Pay Now</button>
-      </form>
+        <p>Simulated cash payment only.</p>
+        <p class="order-total">Total Amount: <span id="cash-total">₱0.00</span></p>
+        <form id="cash-payment-form" novalidate>
+          <label for="amount-paid">Amount Paid (₱)</label>
+          <p id="amount-help">Enter a non-negative amount with up to two decimal places.</p>
+          <input id="amount-paid" name="amount-paid" type="text" inputmode="decimal" autocomplete="off" aria-describedby="amount-help cash-error">
+          <p id="cash-error" role="alert"></p>
+          <button id="cash-pay-now" class="continue-button" type="submit">Pay Now</button>
+        </form>
       </div>
       <div id="qr-processing-panel" hidden>
         <p class="order-total">Amount Due: <span id="qr-total">₱0.00</span></p>
