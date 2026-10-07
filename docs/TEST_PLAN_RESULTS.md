@@ -139,3 +139,36 @@ NOT RUN indicates no behavioral verification has occurred. A planned test is not
 ## Result recording
 
 For each executed test, record date, browser/version, viewport or device, exact steps, expected and actual outcomes, PASS/FAIL, and screenshot or other evidence when available. Recheck affected tests after fixes. Do not mark a development task DONE until its required tests pass.
+
+## Payment Successful confirmation — 2026-10-07
+
+Executed `node tests/cart.test.cjs`: PASS, including existing cart, summary, cash, QR, and card regressions. The harness executes the actual script with simulated DOM controls and a controlled card timer; these are not browser tests.
+
+- Premature success navigation, insufficient cash (₱100 against ₱140), and inconsistent change: no completed snapshot or new reference.
+- Completed cash transaction: Coffee ×2, Sandwich ×1; total ₱140, paid ₱200, change ₱60. Confirmation fields matched.
+- Snapshot has reference, dateTime, items, total, paymentMethod, amountPaid, change, status. ISO timestamp parses; snapshot, item array, and each item are frozen. Attempted item mutation rejected. Changing and clearing the cart preserved the saved snapshot and displayed ₱140 total.
+- Second independent cash transaction: total/paid ₱140, change ₱0. References differed: `POS-6113c09b-482d-442d-9c31-10269ff70e11` and `POS-d556b48d-32bc-4d0b-a379-418d4d79f5c6`. Repeated submission created no extra reference. The harness seeded the second order; a user-facing New Transaction flow is not implemented.
+- HTML source contains PAYMENT SUCCESSFUL and View Receipt. View Receipt is disabled pending the receipt stage. Actual browser appearance, console, and touch behavior remain unverified.
+
+## Digital Receipt — 2026-10-07
+
+Executed `node tests/cart.test.cjs`: PASS including payment/cart/summary regressions. Actual JavaScript runs in a simulated DOM; browser rendering, console, and touch interaction were not tested.
+
+- View Receipt opens receipt and hides confirmation after valid payment. Access without a completed transaction is blocked.
+- Receipt reference and displayed ISO date/time exactly match the snapshot; time element datetime attribute matches too.
+- Coffee: quantity 2, unit price ₱45.00, subtotal ₱90.00. Sandwich: quantity 1, unit price ₱50.00, subtotal ₱50.00. Two rendered items match every saved item field.
+- Total ₱140.00, payment method Cash, amount paid ₱200.00, change ₱60.00, status Payment Successful: all matched the completed transaction.
+- Receipt stays unchanged after cart modification/clearing; it reads saved values, not new calculations from the live cart.
+- HTML source includes the POS heading and large NEW TRANSACTION control using existing continue-button styling. Control is disabled and has no click/reset handler. Reset remains unimplemented.
+
+## New Transaction — 2026-10-07
+
+Executed `node tests/cart.test.cjs`: PASS, including prior cart, summary, payment, confirmation, and receipt regressions. Verification used the actual JavaScript and registered handlers in simulated DOM, not a real browser.
+
+- Completed Coffee ×2 + Sandwich ×1 cash transaction (total/paid ₱140, change ₱0), opened receipt, then selected NEW TRANSACTION.
+- Cart Map size 0; cart/summary/receipt rows empty; total ₱0.00. Continue disabled and empty-order message visible.
+- Selected method, payment result, and completed snapshot null; amount-paid input empty with aria-invalid false. Method buttons unselected; payment Continue disabled.
+- Card processing false, aria-busy false, processing controls unlocked, panels hidden, no pending timer. Cash/QR/card validation messages and navigation message empty, including deliberately seeded stale errors.
+- Success amounts/method/reference and all receipt fields empty, including date/time datetime attribute. Only Item Selection visible. Previous receipt access and duplicate reset attempts ignored.
+- Started another transaction through registered controls: Cookies ×1 → Summary ₱25 → QR Payment → Confirm → Receipt. New snapshot/receipt contained only Cookies ×1, total/paid ₱25, change ₱0, QR Payment, and a different reference. Selecting NEW TRANSACTION again returned to an empty ₱0.00 order with no snapshot or receipt rows.
+- Browser display, console, and touchscreen behavior remain unverified.

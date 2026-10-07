@@ -12,7 +12,7 @@ const products = [
 // The cart stores quantities only; names and prices always come from the catalog.
 const cart = new Map();
 let currentScreen = 'item-selection';
-const applicationState = { selectedPaymentMethod: null, paymentResult: null, cardProcessing: false };
+const applicationState = { selectedPaymentMethod: null, paymentResult: null, cardProcessing: false, completedTransaction: null };
 const paymentMethods = [
   { id: 'cash', label: 'Cash', buttonId: 'payment-cash' },
   { id: 'qr', label: 'QR Payment', buttonId: 'payment-qr' },
@@ -35,12 +35,104 @@ function renderPaymentSelection() {
 }
 
 function completeSimulatedPayment(result) {
-  if (applicationState.paymentResult) return;
-  applicationState.paymentResult = result;
-  document.getElementById('cash-paid-result').textContent = formatPrice(result.amountPaid);
-  document.getElementById('cash-change-result').textContent = formatPrice(result.change);
-  document.getElementById('payment-method-result').textContent = result.paymentMethod;
+  if (currentScreen !== 'payment-processing' || applicationState.cardProcessing ||
+      applicationState.paymentResult || !isCartValid() || !result) return;
+  const method = paymentMethods.find((entry) => entry.id === applicationState.selectedPaymentMethod);
+  const total = calculateTotal();
+  if (!method || result.paymentMethod !== method.label || result.total !== total ||
+      !Number.isFinite(result.amountPaid) || !Number.isFinite(result.change)) return;
+  if (method.id === 'cash') {
+    const validated = validateAmountPaid(String(result.amountPaid), total);
+    if (validated.error || validated.change !== result.change) return;
+  } else if (result.amountPaid !== total || result.change !== 0) return;
+
+  const items = Array.from(cart, ([productId, quantity]) => {
+    const product = products.find((entry) => entry.id === productId);
+    return Object.freeze({ productId, name: product.name, unitPrice: product.price, quantity, subtotal: calculateSubtotal(productId) });
+  });
+  // Copy values and freeze every level; later cart changes cannot alter the record.
+  const snapshot = Object.freeze({
+    reference: `POS-${crypto.randomUUID()}`,
+    dateTime: new Date().toISOString(),
+    items: Object.freeze(items),
+    total,
+    paymentMethod: method.label,
+    amountPaid: result.amountPaid,
+    change: result.change,
+    status: 'completed'
+  });
+  applicationState.completedTransaction = snapshot;
+  applicationState.paymentResult = Object.freeze({ ...result });
   navigateTo('payment-successful');
+}
+
+function renderPaymentSuccessful() {
+  const transaction = applicationState.completedTransaction;
+  if (!transaction || transaction.status !== 'completed') return;
+  document.getElementById('success-total').textContent = formatPrice(transaction.total);
+  document.getElementById('cash-paid-result').textContent = formatPrice(transaction.amountPaid);
+  document.getElementById('cash-change-result').textContent = formatPrice(transaction.change);
+  document.getElementById('payment-method-result').textContent = transaction.paymentMethod;
+  document.getElementById('success-reference').textContent = transaction.reference;
+}
+
+function renderReceipt() {
+  const transaction = applicationState.completedTransaction;
+  if (!transaction || transaction.status !== 'completed') return;
+  document.getElementById('receipt-reference').textContent = transaction.reference;
+  const dateTime = document.getElementById('receipt-date-time');
+  dateTime.textContent = transaction.dateTime;
+  dateTime.setAttribute('datetime', transaction.dateTime);
+  const fragment = document.createDocumentFragment();
+  transaction.items.forEach((item) => {
+    const row = document.createElement('li');
+    row.classList.add('cart-item');
+    [item.name, `Quantity: ${item.quantity}`, `Unit Price: ${formatPrice(item.unitPrice)}`,
+      `Subtotal: ${formatPrice(item.subtotal)}`].forEach((value) => {
+      const detail = document.createElement('p');
+      detail.textContent = value;
+      row.append(detail);
+    });
+    fragment.append(row);
+  });
+  document.getElementById('receipt-items').replaceChildren(fragment);
+  document.getElementById('receipt-total').textContent = formatPrice(transaction.total);
+  document.getElementById('receipt-method').textContent = transaction.paymentMethod;
+  document.getElementById('receipt-paid').textContent = formatPrice(transaction.amountPaid);
+  document.getElementById('receipt-change').textContent = formatPrice(transaction.change);
+  document.getElementById('receipt-status').textContent = 'Payment Successful';
+}
+
+function startNewTransaction() {
+  if (currentScreen !== 'receipt' || applicationState.completedTransaction?.status !== 'completed') return;
+
+  cart.clear();
+  applicationState.selectedPaymentMethod = null;
+  applicationState.paymentResult = null;
+  applicationState.completedTransaction = null;
+  setCardProcessing(false);
+  renderCashProcessing();
+  renderPaymentSelection();
+
+  // Clear hidden screens too so no previous customer's values remain in the DOM.
+  ['summary-items', 'receipt-items'].forEach((id) => {
+    document.getElementById(id).replaceChildren(document.createDocumentFragment());
+  });
+  ['summary-total', 'qr-total', 'card-total'].forEach((id) => {
+    document.getElementById(id).textContent = formatPrice(0);
+  });
+  ['qr-error', 'card-error', 'card-status', 'success-total', 'cash-paid-result',
+    'cash-change-result', 'payment-method-result', 'success-reference', 'receipt-reference',
+    'receipt-date-time', 'receipt-total', 'receipt-method', 'receipt-paid', 'receipt-change',
+    'receipt-status'].forEach((id) => {
+    document.getElementById(id).textContent = '';
+  });
+  document.getElementById('receipt-date-time').removeAttribute('datetime');
+  document.getElementById('processing-title').textContent = 'Payment Processing';
+  ['cash-processing-panel', 'qr-processing-panel', 'card-processing-panel'].forEach((id) => {
+    document.getElementById(id).hidden = true;
+  });
+  navigateTo('item-selection');
 }
 
 function renderPaymentProcessing() {
@@ -124,6 +216,7 @@ function validateAmountPaid(rawAmount, total) {
 
 function renderCashProcessing() {
   applicationState.paymentResult = null;
+  applicationState.completedTransaction = null;
   const total = document.getElementById('cash-total');
   if (total) total.textContent = formatPrice(calculateTotal());
   const input = document.getElementById('amount-paid');
@@ -204,14 +297,18 @@ function renderOrderSummary() {
 
 function navigateTo(screen) {
   if (applicationState.cardProcessing) return;
-  const screens = ['item-selection', 'order-summary', 'payment-method', 'payment-processing', 'payment-successful'];
+  const screens = ['item-selection', 'order-summary', 'payment-method', 'payment-processing', 'payment-successful', 'receipt'];
   if (!screens.includes(screen)) return;
+  if (screen === 'receipt' && (currentScreen !== 'payment-successful' ||
+      applicationState.completedTransaction?.status !== 'completed')) return;
   if (screen === 'payment-processing' && (currentScreen !== 'payment-method' || !paymentMethods.some((method) => method.id === applicationState.selectedPaymentMethod))) return;
-  if (screen === 'payment-successful' && (currentScreen !== 'payment-processing' || !applicationState.paymentResult)) return;
+  if (screen === 'payment-successful' && (currentScreen !== 'payment-processing' ||
+      !applicationState.paymentResult || applicationState.completedTransaction?.status !== 'completed')) return;
   let message = '';
-  if (screen !== 'item-selection' && !isCartValid()) {
+  if (!['item-selection', 'payment-successful', 'receipt'].includes(screen) && !isCartValid()) {
     applicationState.selectedPaymentMethod = null;
     applicationState.paymentResult = null;
+    applicationState.completedTransaction = null;
     cart.forEach((quantity, id) => {
       if (!isValidCartEntry(id, quantity)) cart.delete(id);
     });
@@ -224,6 +321,8 @@ function navigateTo(screen) {
   if (screen === 'item-selection') renderCart();
   if (screen === 'payment-method') renderPaymentSelection();
   if (screen === 'payment-processing') renderPaymentProcessing();
+  if (screen === 'payment-successful') renderPaymentSuccessful();
+  if (screen === 'receipt') renderReceipt();
   currentScreen = screen;
   screens.forEach((id) => {
     const section = document.getElementById(id);
@@ -232,9 +331,9 @@ function navigateTo(screen) {
   const status = document.getElementById('navigation-message');
   if (status) status.textContent = message;
   const label = document.getElementById('screen-label');
-  const titles = { 'item-selection': 'Item Selection', 'order-summary': 'Order Summary', 'payment-method': 'Payment Method', 'payment-processing': 'Payment Processing', 'payment-successful': 'Payment Successful' };
+  const titles = { 'item-selection': 'Item Selection', 'order-summary': 'Order Summary', 'payment-method': 'Payment Method', 'payment-processing': 'Payment Processing', 'payment-successful': 'Payment Successful', 'receipt': 'Receipt' };
   if (label) label.textContent = `IT415 · ${titles[screen]}`;
-  const headings = { 'item-selection': 'app-title', 'order-summary': 'summary-title', 'payment-method': 'payment-title', 'payment-processing': 'processing-title', 'payment-successful': 'success-title' };
+  const headings = { 'item-selection': 'app-title', 'order-summary': 'summary-title', 'payment-method': 'payment-title', 'payment-processing': 'processing-title', 'payment-successful': 'success-title', 'receipt': 'receipt-title' };
   const headingId = headings[screen];
   document.getElementById(headingId)?.focus?.();
 }
@@ -372,7 +471,8 @@ function initializeApplication() {
     'summary-continue': 'payment-method',
     'payment-back': 'order-summary',
     'payment-process': 'payment-processing',
-    'cash-back': 'payment-method'
+    'cash-back': 'payment-method',
+    'view-receipt': 'receipt'
   };
   Object.entries(navigation).forEach(([id, screen]) => {
     document.getElementById(id)?.addEventListener('click', () => navigateTo(screen));
@@ -384,6 +484,7 @@ function initializeApplication() {
   document.getElementById('cash-payment-form')?.addEventListener('submit', processCashPayment);
   document.getElementById('qr-confirm')?.addEventListener('click', confirmQRPayment);
   document.getElementById('card-process')?.addEventListener('click', processCardPayment);
+  document.getElementById('new-transaction')?.addEventListener('click', startNewTransaction);
 
   application.dataset.initialized = 'true';
 }

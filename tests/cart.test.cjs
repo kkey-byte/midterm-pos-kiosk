@@ -4,12 +4,15 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const path = require('node:path');
+const { randomUUID } = require('node:crypto');
+let referencesGenerated = 0;
 
 function element(tag) {
   return {
     tag, dataset: {}, children: [], listeners: {}, hidden: false,
     classList: { add() {} },
     setAttribute(name, value) { this[name] = value; },
+    removeAttribute(name) { delete this[name]; },
     addEventListener(event, callback) { this.listeners[event] = callback; },
     append(...children) { this.children.push(...children); },
     replaceChildren(fragment) { this.children = [...fragment.children]; }
@@ -25,10 +28,14 @@ const nodes = Object.fromEntries(
     'cash-payment-form', 'cash-total', 'amount-paid', 'cash-error', 'cash-back',
     'cash-paid-result', 'cash-change-result', 'payment-method-result', 'processing-title',
     'cash-processing-panel', 'qr-processing-panel', 'qr-total', 'qr-error', 'qr-confirm',
-    'card-processing-panel', 'card-total', 'card-status', 'card-error', 'card-process'].map((id) => [id, element('div')])
+    'card-processing-panel', 'card-total', 'card-status', 'card-error', 'card-process',
+    'success-total', 'success-reference', 'view-receipt', 'receipt', 'receipt-reference',
+    'receipt-date-time', 'receipt-items', 'receipt-total', 'receipt-method', 'receipt-paid',
+    'receipt-change', 'receipt-status', 'new-transaction'].map((id) => [id, element('div')])
 );
 const timers = [];
 const context = vm.createContext({
+  crypto: { randomUUID() { referencesGenerated++; return randomUUID(); } },
   setTimeout(callback, delay) { timers.push({ callback, delay }); },
   document: {
     readyState: 'complete',
@@ -161,7 +168,7 @@ for (const [id, label] of [['cash', 'Cash'], ['qr', 'QR Payment'], ['card', 'Cre
 }
 run("selectPaymentMethod('invalid')");
 assert.equal(run('applicationState.selectedPaymentMethod'), 'card');
-assert.deepEqual(Array.from(run('Object.keys(applicationState)')), ['selectedPaymentMethod', 'paymentResult', 'cardProcessing']);
+assert.deepEqual(Array.from(run('Object.keys(applicationState)')), ['selectedPaymentMethod', 'paymentResult', 'cardProcessing', 'completedTransaction']);
 console.log('PASS: Invalid method ignored; state stores only the method identifier, no payment credentials; no transaction completed.');
 run("cart.set('unknown', 1); selectPaymentMethod('cash')");
 assert.equal(run('currentScreen'), 'item-selection');
@@ -195,7 +202,7 @@ for (const value of ['100', '', '   ', 'abc', '-1', 'Infinity', '-Infinity', 'Na
   assert.equal(run('applicationState.paymentResult'), null);
   assert.equal(nodes['payment-successful'].hidden, true);
   assert.ok(nodes['cash-error'].textContent.length > 0);
-  assert.equal(run("'transaction' in applicationState || 'receipt' in applicationState"), false);
+  assert.equal(run('applicationState.completedTransaction'), null);
   total(140);
   console.log(`PASS: Amount ${JSON.stringify(value)} rejected with message; stays processing; no success, transaction, receipt, or payment result.`);
 }
@@ -351,3 +358,159 @@ assert.ok(pageSource.includes('>Process Payment</button>'));
 assert.equal((pageSource.match(/<input\b/g) || []).length, 1);
 assert.ok(pageSource.includes('id="amount-paid"'));
 console.log('PASS: HTML source includes QR placeholder/instructions, card instruction, and confirmation controls; only Amount Paid input exists. Browser rendering not tested.');
+
+const referenceBaseline = referencesGenerated;
+nodes['view-receipt'].listeners.click();
+assert.equal(run('currentScreen'), 'item-selection');
+run("navigateTo('payment-successful')");
+assert.equal(run('currentScreen'), 'item-selection');
+enterCashProcessing();
+nodes['amount-paid'].value = '100';
+nodes['cash-payment-form'].listeners.submit({ preventDefault() {} });
+assert.equal(run('applicationState.completedTransaction'), null);
+run("completeSimulatedPayment({ total: 140, amountPaid: 200, change: 999, paymentMethod: 'Cash' })");
+assert.equal(run('applicationState.completedTransaction'), null);
+assert.equal(referencesGenerated, referenceBaseline);
+nodes['amount-paid'].value = '200';
+nodes['cash-payment-form'].listeners.submit({ preventDefault() {} });
+const firstTransaction = run('applicationState.completedTransaction');
+assert.deepEqual(Object.keys(firstTransaction).sort(), ['reference', 'dateTime', 'items', 'total', 'paymentMethod', 'amountPaid', 'change', 'status'].sort());
+assert.equal(firstTransaction.status, 'completed');
+assert.equal(firstTransaction.total, 140);
+assert.equal(firstTransaction.amountPaid, 200);
+assert.equal(firstTransaction.change, 60);
+assert.equal(firstTransaction.paymentMethod, 'Cash');
+assert.ok(Number.isFinite(Date.parse(firstTransaction.dateTime)));
+assert.ok(firstTransaction.reference.startsWith('POS-'));
+assert.equal(firstTransaction.items[0].name, 'Coffee');
+assert.equal(firstTransaction.items[0].quantity, 2);
+assert.equal(firstTransaction.items[0].subtotal, 90);
+assert.equal(firstTransaction.items[1].name, 'Sandwich');
+assert.equal(firstTransaction.items[1].subtotal, 50);
+assert.ok(Object.isFrozen(firstTransaction));
+assert.ok(Object.isFrozen(firstTransaction.items));
+assert.ok(firstTransaction.items.every(Object.isFrozen));
+assert.throws(() => run("'use strict'; applicationState.completedTransaction.items[0].quantity = 99"), /read only/);
+const firstSerialized = JSON.stringify(firstTransaction);
+nodes['view-receipt'].listeners.click();
+assert.equal(run('currentScreen'), 'receipt');
+assert.equal(nodes['receipt'].hidden, false);
+assert.equal(nodes['payment-successful'].hidden, true);
+assert.equal(nodes['receipt-reference'].textContent, firstTransaction.reference);
+assert.equal(nodes['receipt-date-time'].textContent, firstTransaction.dateTime);
+assert.equal(nodes['receipt-date-time'].datetime, firstTransaction.dateTime);
+assert.equal(nodes['receipt-items'].children.length, firstTransaction.items.length);
+firstTransaction.items.forEach((item, index) => {
+  const details = nodes['receipt-items'].children[index].children.map((detail) => detail.textContent);
+  assert.deepEqual(details, [item.name, `Quantity: ${item.quantity}`,
+    `Unit Price: ₱${item.unitPrice.toFixed(2)}`, `Subtotal: ₱${item.subtotal.toFixed(2)}`]);
+});
+assert.equal(nodes['receipt-total'].textContent, '₱140.00');
+assert.equal(nodes['receipt-method'].textContent, 'Cash');
+assert.equal(nodes['receipt-paid'].textContent, '₱200.00');
+assert.equal(nodes['receipt-change'].textContent, '₱60.00');
+assert.equal(nodes['receipt-status'].textContent, 'Payment Successful');
+assert.equal(typeof nodes['new-transaction'].listeners.click, 'function');
+assert.ok(pageSource.includes('Touchscreen POS Kiosk — Digital Receipt'));
+assert.ok(pageSource.includes('id="new-transaction" class="continue-button" type="button">NEW TRANSACTION'));
+console.log('PASS: View Receipt displays snapshot reference/dateTime, Coffee ×2 at ₱45 = ₱90, Sandwich ×1 at ₱50 = ₱50, total ₱140, Cash paid ₱200, change ₱60, and Payment Successful.');
+console.log('PASS: Receipt without completion blocked; NEW TRANSACTION is enabled in HTML and has a registered handler.');
+run("addToCart('coffee'); cart.clear(); renderPaymentSuccessful()");
+run('renderReceipt()');
+assert.equal(nodes['receipt-total'].textContent, '₱140.00');
+assert.equal(nodes['receipt-items'].children[0].children[1].textContent, 'Quantity: 2');
+assert.equal(nodes['receipt-change'].textContent, '₱60.00');
+assert.equal(JSON.stringify(firstTransaction), firstSerialized);
+assert.equal(nodes['success-total'].textContent, '₱140.00');
+assert.equal(nodes['cash-paid-result'].textContent, '₱200.00');
+assert.equal(nodes['cash-change-result'].textContent, '₱60.00');
+assert.equal(nodes['success-reference'].textContent, firstTransaction.reference);
+run("navigateTo('item-selection')");
+tap('coffee'); tap('coffee'); tap('sandwich');
+enterCashProcessing();
+nodes['amount-paid'].value = '140';
+nodes['cash-payment-form'].listeners.submit({ preventDefault() {} });
+const secondTransaction = run('applicationState.completedTransaction');
+assert.notEqual(secondTransaction.reference, firstTransaction.reference);
+assert.equal(secondTransaction.change, 0);
+assert.equal(JSON.stringify(firstTransaction), firstSerialized);
+nodes['cash-payment-form'].listeners.submit({ preventDefault() {} });
+assert.equal(referencesGenerated, referenceBaseline + 2);
+assert.ok(pageSource.includes('PAYMENT SUCCESSFUL'));
+assert.ok(pageSource.includes('>View Receipt</button>'));
+console.log('PASS: Premature success, insufficient payment, and inconsistent change generate no reference; repeated completion generates no extra reference.');
+console.log('PASS: Completed snapshot contains all eight required fields, is deeply frozen, and survives cart changes and a subsequent transaction unchanged.');
+console.log(`PASS: Two completed transactions have different references: ${firstTransaction.reference} and ${secondTransaction.reference}.`);
+
+nodes['view-receipt'].listeners.click();
+assert.equal(nodes['receipt-reference'].textContent, secondTransaction.reference);
+// Include stale feedback from other methods to verify reset clears hidden screens.
+nodes['qr-error'].textContent = 'Previous QR error';
+nodes['card-error'].textContent = 'Previous card error';
+nodes['cash-error'].textContent = 'Previous cash error';
+nodes['navigation-message'].textContent = 'Previous navigation message';
+nodes['amount-paid'].setAttribute('aria-invalid', 'true');
+nodes['new-transaction'].listeners.click();
+assert.equal(run('currentScreen'), 'item-selection');
+assert.equal(run('cart.size'), 0);
+total(0);
+assert.equal(run('applicationState.selectedPaymentMethod'), null);
+assert.equal(run('applicationState.paymentResult'), null);
+assert.equal(run('applicationState.completedTransaction'), null);
+assert.equal(run('applicationState.cardProcessing'), false);
+assert.equal(nodes['amount-paid'].value, '');
+assert.equal(nodes['amount-paid']['aria-invalid'], 'false');
+assert.equal(nodes['card-processing-panel']['aria-busy'], 'false');
+assert.equal(nodes['card-process'].disabled, false);
+assert.equal(nodes['cash-back'].disabled, false);
+assert.equal(nodes['selection-continue'].disabled, true);
+assert.equal(nodes['payment-process'].disabled, true);
+assert.equal(nodes['empty-order'].hidden, false);
+for (const id of ['cart-items', 'summary-items', 'receipt-items']) assert.equal(nodes[id].children.length, 0);
+for (const id of ['cash-total', 'summary-total', 'qr-total', 'card-total']) assert.equal(nodes[id].textContent, '₱0.00');
+for (const id of ['cash-error', 'qr-error', 'card-error', 'card-status', 'navigation-message',
+  'success-total', 'cash-paid-result', 'cash-change-result', 'payment-method-result', 'success-reference',
+  'receipt-reference', 'receipt-date-time', 'receipt-total', 'receipt-method', 'receipt-paid', 'receipt-change', 'receipt-status']) {
+  assert.equal(nodes[id].textContent, '', `${id} must contain no previous data`);
+}
+assert.equal(nodes['receipt-date-time'].datetime, undefined);
+for (const method of ['cash', 'qr', 'card']) assert.equal(nodes[`payment-${method}`]['aria-pressed'], 'false');
+for (const id of ['order-summary', 'payment-method', 'payment-processing', 'payment-successful', 'receipt',
+  'cash-processing-panel', 'qr-processing-panel', 'card-processing-panel']) assert.equal(nodes[id].hidden, true);
+assert.equal(nodes['item-selection'].hidden, false);
+nodes['view-receipt'].listeners.click();
+nodes['new-transaction'].listeners.click();
+assert.equal(run('currentScreen'), 'item-selection');
+assert.equal(run('applicationState.completedTransaction'), null);
+assert.equal(timers.length, 0);
+console.log('PASS: Receipt → NEW TRANSACTION clears cart/quantities, all totals, method, input, locks, validation, success, snapshot, and receipt DOM; Item Selection shows ₱0.00 with Continue disabled.');
+
+tap('cookies');
+nodes['selection-continue'].listeners.click();
+assert.equal(nodes['summary-total'].textContent, '₱25.00');
+nodes['summary-continue'].listeners.click();
+nodes['payment-qr'].listeners.click();
+nodes['payment-process'].listeners.click();
+nodes['qr-confirm'].listeners.click();
+nodes['view-receipt'].listeners.click();
+const nextTransaction = run('applicationState.completedTransaction');
+assert.equal(nextTransaction.items.length, 1);
+assert.equal(nextTransaction.items[0].name, 'Cookies');
+assert.equal(nextTransaction.items[0].quantity, 1);
+assert.equal(nextTransaction.total, 25);
+assert.equal(nextTransaction.paymentMethod, 'QR Payment');
+assert.equal(nextTransaction.amountPaid, 25);
+assert.equal(nextTransaction.change, 0);
+assert.notEqual(nextTransaction.reference, secondTransaction.reference);
+assert.equal(nodes['receipt-items'].children.length, 1);
+assert.equal(nodes['receipt-items'].children[0].children[0].textContent, 'Cookies');
+assert.equal(nodes['receipt-total'].textContent, '₱25.00');
+assert.equal(nodes['receipt-method'].textContent, 'QR Payment');
+assert.equal(nodes['receipt-paid'].textContent, '₱25.00');
+assert.equal(nodes['receipt-change'].textContent, '₱0.00');
+nodes['new-transaction'].listeners.click();
+assert.equal(run('cart.size'), 0);
+assert.equal(run('applicationState.completedTransaction'), null);
+assert.equal(nodes['receipt-items'].children.length, 0);
+total(0);
+console.log('PASS: After reset, Cookies ×1 → summary → QR confirmation → new receipt completes for ₱25 paid/₱0 change with a new reference; second reset also succeeds.');
