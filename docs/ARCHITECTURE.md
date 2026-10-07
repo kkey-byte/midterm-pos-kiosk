@@ -9,6 +9,8 @@
 
 ## Planned application design
 
+Order Summary is now implemented on feature-checkout. currentScreen tracks only navigation; the existing cart Map remains authoritative. renderOrderSummary reads catalog data and existing calculateSubtotal/calculateTotal functions. navigateTo shows one screen at a time, validates cart entries before entering summary/payment, and returns safely to Item Selection with feedback when invalid. BACK preserves cart state. Payment Method is a placeholder with a return control, without payment selection or processing.
+
 Implemented cart: addToCart, increaseQuantity, decreaseQuantity, and removeFromCart update the single cart Map. calculateSubtotal multiplies catalog unit price by current quantity; calculateTotal sums calculateSubtotal results. renderCart uses those same functions and formatPrice, avoiding duplicated calculations. Decreasing to zero removes the item. Catalog prices are currently exact whole-peso values. DOM labels use textContent and accessible native buttons with 56px minimum-size quantity controls.
 
 The browser renders all screens and owns all transaction state. A hard-coded product catalog in JavaScript supplies product data. In-memory state will hold the current screen, selected items and quantities, selected simulated payment method, processing status, and completed transaction snapshot.

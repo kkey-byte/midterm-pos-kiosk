@@ -202,6 +202,41 @@ button:focus-visible {
   cursor: not-allowed;
 }
 
+.continue-button:not(:disabled) {
+  background: #1d4ed8;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.selection-note {
+  grid-column: 1 / -1;
+}
+
+.navigation-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.navigation-controls button {
+  width: auto;
+  min-height: 64px;
+  flex: 1 1 220px;
+}
+
+#navigation-message:not(:empty) {
+  padding: 16px;
+  margin-bottom: 20px;
+  background: #fff7ed;
+  border: 1px solid #c2410c;
+  border-radius: 8px;
+}
+
+#payment-back {
+  margin-top: 24px;
+}
+
 @media (max-width: 800px) {
   .kiosk-layout {
     grid-template-columns: 1fr;

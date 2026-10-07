@@ -17,7 +17,10 @@ function element(tag) {
 }
 
 const nodes = Object.fromEntries(
-  ['app', 'product-grid', 'cart-items', 'cart-total', 'empty-order'].map((id) => [id, element('div')])
+  ['app', 'product-grid', 'cart-items', 'cart-total', 'empty-order',
+    'item-selection', 'order-summary', 'payment-method', 'summary-items', 'summary-total',
+    'selection-continue', 'summary-back', 'summary-continue', 'payment-back',
+    'navigation-message', 'screen-label'].map((id) => [id, element('div')])
 );
 const context = vm.createContext({
   document: {
@@ -76,3 +79,53 @@ total(0); assert.equal(run('cart.size'), 0);
 assert.equal(run("calculateSubtotal('invalid')"), 0);
 tap('coffee'); row('Coffee', 1, 45); total(45);
 console.log('PASS: Quantity reaching zero removes the row; repeated decreases cannot produce negative quantities; empty total, invalid IDs, and re-addition verified.');
+
+run('cart.clear(); renderCart()');
+assert.equal(nodes['selection-continue'].disabled, true);
+tap('coffee'); tap('coffee'); tap('sandwich');
+total(140);
+assert.equal(nodes['selection-continue'].disabled, false);
+const originalCart = run('cart');
+nodes['selection-continue'].listeners.click();
+assert.equal(run('currentScreen'), 'order-summary');
+assert.equal(nodes['item-selection'].hidden, true);
+assert.equal(nodes['order-summary'].hidden, false);
+const expectedSummary = [
+  ['Coffee', 'Unit price: ₱45.00', 'Qty: 2', 'Subtotal: ₱90.00'],
+  ['Sandwich', 'Unit price: ₱50.00', 'Qty: 1', 'Subtotal: ₱50.00']
+];
+assert.equal(nodes['summary-items'].children.length, 2);
+nodes['summary-items'].children.forEach((item, index) => {
+  assert.deepEqual(item.children.map((child) => child.textContent), expectedSummary[index]);
+});
+assert.equal(nodes['summary-total'].textContent, '₱140.00');
+assert.equal(run('cart'), originalCart);
+console.log('PASS: Summary exactly matches Coffee ×2 (₱45 unit, ₱90 subtotal), Sandwich ×1 (₱50 unit/subtotal), total ₱140; same cart object.');
+nodes['summary-back'].listeners.click();
+assert.equal(run('currentScreen'), 'item-selection');
+assert.equal(nodes['item-selection'].hidden, false);
+assert.equal(nodes['order-summary'].hidden, true);
+row('Coffee', 2, 90); row('Sandwich', 1, 50); total(140);
+assert.equal(run('cart'), originalCart);
+console.log('PASS: BACK preserves both items, quantities, subtotals, total, and authoritative cart object.');
+nodes['selection-continue'].listeners.click();
+nodes['summary-continue'].listeners.click();
+assert.equal(run('currentScreen'), 'payment-method');
+assert.equal(nodes['payment-method'].hidden, false);
+total(140);
+nodes['payment-back'].listeners.click();
+assert.equal(run('currentScreen'), 'order-summary');
+console.log('PASS: CONTINUE TO PAYMENT opens placeholder; return to summary preserves cart. No processing implemented.');
+run("cart.clear(); navigateTo('order-summary')");
+assert.equal(run('currentScreen'), 'item-selection');
+assert.ok(nodes['navigation-message'].textContent.includes('Please choose'));
+total(0);
+for (const invalid of ["cart.set('unknown', 1)", "cart.set('coffee', -1)", "cart.set('coffee', 0)", "cart.set('coffee', 1.5)", "cart.set('coffee', NaN)"]) {
+  run(`cart.clear(); ${invalid}; navigateTo('order-summary')`);
+  assert.equal(run('currentScreen'), 'item-selection');
+  assert.equal(run('cart.size'), 0);
+  assert.equal(nodes['selection-continue'].disabled, true);
+  assert.ok(nodes['navigation-message'].textContent.includes('Please choose'));
+  total(0);
+}
+console.log('PASS: Empty and invalid carts return safely to Item Selection with friendly feedback and no exceptions.');

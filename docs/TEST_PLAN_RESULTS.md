@@ -14,6 +14,23 @@
 
 ## Planned acceptance tests
 
+### Order Summary and navigation — 2026-10-07
+
+Executed `node --check script.js`, `node tests/cart.test.cjs`, and `git diff --check` successfully. The expanded test executes the actual script in a simulated DOM and invokes registered Continue, BACK, and CONTINUE TO PAYMENT handlers. Existing cart regression checks also passed.
+
+| Check | Observed result | Outcome |
+| --- | --- | --- |
+| Coffee ×2, Sandwich ×1 in Item Selection | Coffee subtotal ₱90.00, Sandwich subtotal ₱50.00, total ₱140.00 | PASS |
+| Continue to summary | Two rows: Coffee, unit ₱45.00, quantity 2, subtotal ₱90.00; Sandwich, unit ₱50.00, quantity 1, subtotal ₱50.00; total ₱140.00 | PASS |
+| Shared state | Identical authoritative cart object before and after navigation; no duplicate cart | PASS |
+| BACK | Item Selection visible; Coffee ×2 and Sandwich ×1 preserved; total ₱140.00 | PASS |
+| CONTINUE TO PAYMENT | Payment Method placeholder visible; order unchanged; returning to summary works | PASS |
+| Empty summary entry | Returned to Item Selection with friendly message; Continue disabled; total ₱0.00 | PASS |
+| Unknown product, negative, zero, fractional, or NaN quantity | Invalid entry removed; safely returned to Item Selection with message and no exceptions | PASS |
+| Browser rendering, focus, actual clicks/touch, and console | Not performed; simulated DOM checks do not establish browser results | NOT VERIFIED |
+
+Decreasing a normal cart to zero removes the row. Defensive summary validation removes invalid entries while preserving valid ones; an unsafe aggregate total resets the cart. Summary and payment navigation never copy or replace the authoritative cart Map. Payment controls/processing remain unimplemented.
+
 ### Cart Management — 2026-10-07
 
 Executed `node --check script.js` and `node tests/cart.test.cjs`; both exited with code 0. The latter executes the actual application script with a simulated DOM and invokes registered product and cart button click handlers. It checks cart state and rendered quantity, subtotal, and total text. This is not a real browser or touchscreen test.
