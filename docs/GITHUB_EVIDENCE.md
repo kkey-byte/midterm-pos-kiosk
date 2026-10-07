@@ -27,6 +27,16 @@ Current branch at inspection: main.
 
 ## Evidence to collect later
 
+## Order Summary review — 2026-10-07
+
+- Branch: feature-checkout; intended PR base: main.
+- Local feature commit: d011199ef2327f8d0e9f42235f008b8367340920.
+- Subject: feat(checkout): add order summary and back navigation.
+- Review reran node --check script.js, node tests/cart.test.cjs, and Git whitespace checks successfully. Summary/Back preserve Coffee ×2, Sandwich ×1, total ₱140 and the same cart object. Empty/invalid guards and existing cart regressions passed in a simulated DOM.
+- Real browser rendering, focus, touch/click interaction, and console checks remain unperformed.
+- The initial push waited in Git Credential Manager and was canceled after no completion. A noninteractive retry failed with: Cannot prompt because user interactivity has been disabled; unable to get password from user. No successful checkout push is claimed.
+- PR description is ready in CHECKOUT_PR_DESCRIPTION.md; no checkout PR was created. Authenticate Git, push feature-checkout, then compare main...feature-checkout on the existing repository. Do not merge until reviewed.
+
 ## Cart feature — 2026-10-07
 
 - Branch: feature-cart, targeting main.
