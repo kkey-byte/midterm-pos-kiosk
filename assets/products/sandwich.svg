@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" role="img" aria-labelledby="title desc">
+  <title id="title">Sandwich</title>
+  <desc id="desc">A layered sandwich cut into a triangle.</desc>
+  <rect width="320" height="220" rx="30" fill="#f5ecff"/>
+  <circle cx="160" cy="110" r="72" fill="#ffffff"/>
+  <path d="M84 155 160 48l76 107H84Z" fill="#f8d58f" stroke="#7c3aed" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M108 143h104l-16-24H124l-16 24Z" fill="#ffffff" stroke="#5b21b6" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M127 111h66l-18-25h-30l-18 25Z" fill="#a7f3d0" stroke="#7c3aed" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M121 143h78" fill="none" stroke="#fb923c" stroke-width="8" stroke-linecap="round"/>
+</svg>

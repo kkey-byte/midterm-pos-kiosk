@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" role="img" aria-labelledby="title desc">
+  <title id="title">Chocolate</title>
+  <desc id="desc">A chocolate bar divided into squares.</desc>
+  <rect width="320" height="220" rx="30" fill="#f5ecff"/>
+  <circle cx="160" cy="110" r="72" fill="#ffffff"/>
+  <rect x="104" y="57" width="112" height="126" rx="14" fill="#6b3f25" stroke="#7c3aed" stroke-width="10"/>
+  <path d="M160 61v118M108 99h104M108 140h104" fill="none" stroke="#f5ecff" stroke-width="9"/>
+  <path d="M102 178h116" fill="none" stroke="#c4b5fd" stroke-width="11" stroke-linecap="round"/>
+</svg>

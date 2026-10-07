@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" role="img" aria-labelledby="title desc">
+  <title id="title">Bottled water</title>
+  <desc id="desc">A clear bottled water container.</desc>
+  <rect width="320" height="220" rx="30" fill="#f5ecff"/>
+  <circle cx="160" cy="110" r="72" fill="#ffffff"/>
+  <path d="M137 65h46v24l12 19v71a21 21 0 0 1-21 21h-28a21 21 0 0 1-21-21v-71l12-19V65Z" fill="#bfdbfe" stroke="#7c3aed" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M140 43h40v25h-40z" fill="#5b21b6"/>
+  <path d="M130 126h60v43h-60z" fill="#ffffff" opacity=".85"/>
+  <path d="M140 149c14-16 27 16 42 0" fill="none" stroke="#60a5fa" stroke-width="8" stroke-linecap="round"/>
+</svg>

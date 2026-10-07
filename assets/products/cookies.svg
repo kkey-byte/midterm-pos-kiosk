@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" role="img" aria-labelledby="title desc">
+  <title id="title">Cookies</title>
+  <desc id="desc">Round chocolate chip cookies.</desc>
+  <rect width="320" height="220" rx="30" fill="#f5ecff"/>
+  <circle cx="160" cy="110" r="72" fill="#ffffff"/>
+  <circle cx="145" cy="113" r="48" fill="#d69e55" stroke="#7c3aed" stroke-width="9"/>
+  <circle cx="188" cy="92" r="36" fill="#f0bd72" stroke="#5b21b6" stroke-width="8"/>
+  <circle cx="130" cy="98" r="7" fill="#6b3f25"/>
+  <circle cx="151" cy="133" r="7" fill="#6b3f25"/>
+  <circle cx="166" cy="105" r="7" fill="#6b3f25"/>
+  <circle cx="181" cy="84" r="6" fill="#6b3f25"/>
+  <circle cx="201" cy="101" r="6" fill="#6b3f25"/>
+</svg>
