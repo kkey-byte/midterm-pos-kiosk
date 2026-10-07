@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" role="img" aria-labelledby="title">
+  <title id="title">Simulated QR payment code</title>
+  <rect width="220" height="220" rx="18" fill="#fff"/>
+  <rect x="16" y="16" width="58" height="58" fill="#25173f"/>
+  <rect x="28" y="28" width="34" height="34" fill="#fff"/>
+  <rect x="38" y="38" width="14" height="14" fill="#25173f"/>
+  <rect x="146" y="16" width="58" height="58" fill="#25173f"/>
+  <rect x="158" y="28" width="34" height="34" fill="#fff"/>
+  <rect x="168" y="38" width="14" height="14" fill="#25173f"/>
+  <rect x="16" y="146" width="58" height="58" fill="#25173f"/>
+  <rect x="28" y="158" width="34" height="34" fill="#fff"/>
+  <rect x="38" y="168" width="14" height="14" fill="#25173f"/>
+  <path fill="#25173f" d="M88 18h14v14H88zM116 18h14v28h-14zM88 46h28v14H88zM130 60h14v14h-14zM88 88h14v28H88zM116 88h28v14h-28zM158 88h14v14h-14zM186 88h14v28h-14zM102 116h14v14h-14zM130 116h28v14h-28zM172 116h28v14h-28zM88 144h42v14H88zM144 144h14v28h-14zM172 144h28v14h-28zM88 172h14v28H88zM116 172h28v14h-28zM158 172h14v14h-14zM186 172h14v28h-14zM116 200h42v-14h14v14h14v14h-70z"/>
+  <rect x="84" y="84" width="52" height="52" rx="10" fill="#f3eaff"/>
+  <path d="M100 108h20v20h-20zM120 92h16v16h-16zM92 92h16v16H92z" fill="#4c1d95"/>
+</svg>

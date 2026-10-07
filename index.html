@@ -3,18 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Touchscreen POS Kiosk</title>
+  <title>Campus Store POS</title>
   <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
 </head>
 <body>
   <main id="app" class="kiosk" aria-labelledby="app-title">
+    <nav class="step-sidebar" aria-label="Checkout progress">
+      <p class="step-sidebar-title">Campus Store POS</p>
+      <ol class="step-list">
+        <li class="step-item" data-step="order">
+          <span class="step-marker"><span class="step-number">1</span><span class="step-check" aria-hidden="true">✓</span></span>
+          <span class="step-label">Order</span>
+        </li>
+        <li class="step-item" data-step="review">
+          <span class="step-marker"><span class="step-number">2</span><span class="step-check" aria-hidden="true">✓</span></span>
+          <span class="step-label">Review</span>
+        </li>
+        <li class="step-item" data-step="payment">
+          <span class="step-marker"><span class="step-number">3</span><span class="step-check" aria-hidden="true">✓</span></span>
+          <span class="step-label">Payment</span>
+        </li>
+        <li class="step-item" data-step="receipt">
+          <span class="step-marker"><span class="step-number">4</span><span class="step-check" aria-hidden="true">✓</span></span>
+          <span class="step-label">Receipt</span>
+        </li>
+      </ol>
+    </nav>
+    <div class="kiosk-content">
     <header class="kiosk-header">
       <p id="screen-label" class="eyebrow">IT415 · Item Selection</p>
-      <h1 id="app-title" tabindex="-1">Touchscreen POS Kiosk</h1>
+      <h1 id="app-title" tabindex="-1">Campus Store POS</h1>
     </header>
     <p id="navigation-message" role="status" aria-live="polite"></p>
-    <div id="item-selection" class="kiosk-layout">
+    <div id="item-selection" class="kiosk-layout screen-panel">
       <p id="selection-note" class="selection-note">Tap a product to add it to your order. Use + and − to adjust quantities.</p>
       <section aria-labelledby="products-title">
         <h2 id="products-title">Products</h2>
@@ -30,85 +52,149 @@
         <button id="selection-continue" class="continue-button" type="button" disabled aria-describedby="continue-note">Continue</button>
       </aside>
     </div>
-    <section id="order-summary" hidden aria-labelledby="summary-title">
+    <section id="order-summary" class="screen-panel" hidden aria-labelledby="summary-title">
       <h2 id="summary-title" tabindex="-1">Order Summary</h2>
       <p>Review your selected products and quantities.</p>
+      <div class="summary-header" aria-hidden="true">
+        <span>Product</span>
+        <span>Qty</span>
+        <span>Subtotal</span>
+      </div>
       <ul id="summary-items" class="cart-items" aria-label="Order summary items"></ul>
-      <p class="order-total">Total: <span id="summary-total">₱0.00</span></p>
+      <div class="summary-totals" aria-live="polite">
+        <p class="summary-total-items">Total Items <span id="summary-count">0</span></p>
+        <p class="summary-total-amount">Total Amount <span id="summary-total">₱0.00</span></p>
+      </div>
       <div class="navigation-controls">
-        <button id="summary-back" class="cart-control" type="button">BACK</button>
-        <button id="summary-continue" class="continue-button" type="button">CONTINUE TO PAYMENT</button>
+        <button id="summary-back" class="cart-control summary-back-button" type="button">Back</button>
+        <button id="summary-continue" class="continue-button" type="button">Continue to Payment</button>
       </div>
     </section>
-    <section id="payment-method" hidden aria-labelledby="payment-title">
-      <h2 id="payment-title" tabindex="-1">Payment Method</h2>
-      <p id="payment-note">Choose a simulated payment method. No real payment will be taken.</p>
-      <div class="payment-options" role="group" aria-label="Simulated payment methods" aria-describedby="payment-note">
-        <button id="payment-cash" class="payment-option" type="button" aria-pressed="false">Cash</button>
-        <button id="payment-qr" class="payment-option" type="button" aria-pressed="false">QR Payment</button>
-        <button id="payment-card" class="payment-option" type="button" aria-pressed="false">Credit/Debit Card</button>
-      </div>
-      <p id="payment-selection-status" role="status" aria-live="polite">No payment method selected.</p>
-      <p id="cash-availability">All payment methods are simulated. No real payment will be taken.</p>
-      <button id="payment-process" class="continue-button" type="button" disabled aria-describedby="cash-availability">CONTINUE WITH CASH</button>
-      <button id="payment-back" class="cart-control" type="button">BACK TO ORDER SUMMARY</button>
-    </section>
-    <section id="payment-processing" hidden aria-labelledby="processing-title">
-      <h2 id="processing-title" tabindex="-1">Cash Payment Processing</h2>
-      <div id="cash-processing-panel">
-      <p>Simulated cash payment only.</p>
-      <p class="order-total">Total Amount: <span id="cash-total">₱0.00</span></p>
-      <form id="cash-payment-form" novalidate>
-        <label for="amount-paid">Amount Paid (₱)</label>
-        <p id="amount-help">Enter a non-negative amount with up to two decimal places.</p>
-        <input id="amount-paid" name="amount-paid" type="text" inputmode="decimal" autocomplete="off" aria-describedby="amount-help cash-error">
-        <p id="cash-error" role="alert"></p>
-        <button id="cash-pay-now" class="continue-button" type="submit">Pay Now</button>
-      </form>
-      </div>
-      <div id="qr-processing-panel" hidden>
-        <p class="order-total">Amount Due: <span id="qr-total">₱0.00</span></p>
-        <div class="qr-placeholder" role="img" aria-label="QR placeholder for simulation only; not a scannable payment code">
-          <strong>QR PLACEHOLDER</strong>
-          <span>SIMULATION ONLY · NOT SCANNABLE</span>
+    <section id="payment-method" class="screen-panel" hidden aria-labelledby="payment-title">
+      <div class="payment-method-header">
+        <div>
+          <h2 id="payment-title" tabindex="-1">How would you like to pay?</h2>
+          <p id="payment-note">Choose a simulated payment method. No real payment will be taken.</p>
         </div>
-        <p>Scan the QR code using a supported payment application. For this simulation, no scan or application is required: use Confirm Payment below.</p>
+        <p class="payment-due-card">Amount Due <span id="payment-method-total">₱0.00</span></p>
+      </div>
+      <div class="payment-options" role="group" aria-label="Simulated payment methods" aria-describedby="payment-note">
+        <button id="payment-cash" class="payment-option" type="button" aria-pressed="false">
+          <span class="payment-icon cash-icon" aria-hidden="true">₱</span>
+          <span class="payment-name">Cash</span>
+          <span class="payment-description">Pay using cash and receive calculated change.</span>
+        </button>
+        <button id="payment-qr" class="payment-option" type="button" aria-pressed="false">
+          <span class="payment-icon qr-icon" aria-hidden="true"></span>
+          <span class="payment-name">QR Payment</span>
+          <span class="payment-description">Scan using a supported payment application.</span>
+        </button>
+        <button id="payment-card" class="payment-option" type="button" aria-pressed="false">
+          <span class="payment-icon card-icon" aria-hidden="true"></span>
+          <span class="payment-name">Credit / Debit Card</span>
+          <span class="payment-description">Tap, insert, or swipe your card.</span>
+        </button>
+      </div>
+      <div class="payment-method-actions">
+        <p id="payment-selection-status" role="status" aria-live="polite">No payment method selected.</p>
+        <p id="cash-availability">All payment methods are simulated. No real payment will be taken.</p>
+        <div class="payment-method-buttons">
+          <button id="payment-process" class="continue-button" type="button" disabled aria-describedby="cash-availability">CONTINUE WITH CASH</button>
+          <button id="payment-back" class="cart-control" type="button">BACK TO ORDER SUMMARY</button>
+        </div>
+      </div>
+    </section>
+    <section id="payment-processing" class="screen-panel" hidden aria-labelledby="processing-title">
+      <h2 id="processing-title" tabindex="-1">Cash Payment Processing</h2>
+      <div id="cash-processing-panel" class="payment-processing-panel">
+        <div class="payment-amount-card">
+          <span>Total Amount</span>
+          <strong id="cash-total">₱0.00</strong>
+        </div>
+        <form id="cash-payment-form" novalidate>
+          <label for="amount-paid">Amount Paid</label>
+          <p id="amount-help">Enter a non-negative amount with up to two decimal places.</p>
+          <input id="amount-paid" name="amount-paid" type="text" inputmode="decimal" autocomplete="off" aria-describedby="amount-help cash-error cash-change-preview">
+          <p class="cash-change-line">Change <span id="cash-change-preview">₱0.00</span></p>
+          <p id="cash-error" role="alert"></p>
+          <button id="cash-pay-now" class="continue-button" type="submit">Pay Now</button>
+        </form>
+      </div>
+      <div id="qr-processing-panel" class="payment-processing-panel qr-panel" hidden>
+        <p class="payment-amount-card"><span>Amount to Pay</span><strong id="qr-total">₱0.00</strong></p>
+        <div class="qr-placeholder" role="img" aria-label="QR code for simulated payment">
+          <img src="assets/qr-payment.svg" alt="QR code for simulated payment">
+        </div>
+        <p class="payment-instructions">Scan the QR code using a supported payment application. For this simulation, no scan or application is required: use Confirm Payment below.</p>
         <p id="qr-error" role="alert"></p>
         <button id="qr-confirm" class="continue-button" type="button">Confirm Payment</button>
       </div>
-      <div id="card-processing-panel" hidden aria-busy="false">
-        <p class="order-total">Amount Due: <span id="card-total">₱0.00</span></p>
-        <p>Please tap, insert, or swipe your card.</p>
-        <p>This is a simulation. No physical card or card details are needed.</p>
+      <div id="card-processing-panel" class="payment-processing-panel card-panel" hidden aria-busy="false">
+        <h3>Credit / Debit Card</h3>
+        <p class="payment-amount-card"><span>Amount Due</span><strong id="card-total">₱0.00</strong></p>
+        <p class="payment-instructions">Please tap, insert, or swipe your card.</p>
+        <p class="payment-note">This is a simulation. No physical card or card details are needed.</p>
         <p id="card-status" role="status" aria-live="polite">Ready to simulate payment.</p>
         <p id="card-error" role="alert"></p>
         <button id="card-process" class="continue-button" type="button">Process Payment</button>
       </div>
-      <button id="cash-back" class="cart-control" type="button">BACK TO PAYMENT METHOD</button>
+      <button id="cash-back" class="cart-control payment-secondary-action" type="button">Change Payment Method</button>
     </section>
-    <section id="payment-successful" hidden aria-labelledby="success-title">
-      <h2 id="success-title" tabindex="-1">PAYMENT SUCCESSFUL</h2>
-      <p>Simulated payment accepted.</p>
-      <p class="order-total">Transaction Amount: <span id="success-total"></span></p>
-      <p>Payment Method: <span id="payment-method-result"></span></p>
-      <p class="order-total">Amount Paid: <span id="cash-paid-result"></span></p>
-      <p class="order-total">Change: <span id="cash-change-result"></span></p>
-      <p>Transaction Reference: <span id="success-reference"></span></p>
-      <button id="view-receipt" class="continue-button" type="button">View Receipt</button>
+    <section id="payment-successful" class="screen-panel" hidden aria-labelledby="success-title">
+      <div class="success-card">
+        <div class="success-check" aria-hidden="true">✓</div>
+        <h2 id="success-title" tabindex="-1">PAYMENT SUCCESSFUL</h2>
+        <dl class="success-details">
+          <div>
+            <dt>Transaction No.</dt>
+            <dd id="success-reference"></dd>
+          </div>
+          <div>
+            <dt>Payment Method</dt>
+            <dd id="payment-method-result"></dd>
+          </div>
+          <div>
+            <dt>Transaction Amount</dt>
+            <dd id="success-total"></dd>
+          </div>
+          <div>
+            <dt>Amount Paid</dt>
+            <dd id="cash-paid-result"></dd>
+          </div>
+          <div>
+            <dt>Change</dt>
+            <dd id="cash-change-result"></dd>
+          </div>
+        </dl>
+        <button id="view-receipt" class="continue-button" type="button">View Receipt</button>
+      </div>
     </section>
-    <section id="receipt" class="receipt" hidden aria-labelledby="receipt-title">
-      <h2 id="receipt-title" tabindex="-1">Touchscreen POS Kiosk — Digital Receipt</h2>
-      <p>Simulated transaction</p>
-      <p>Reference: <span id="receipt-reference"></span></p>
-      <p>Date / Time: <time id="receipt-date-time"></time></p>
-      <ul id="receipt-items" class="cart-items" aria-label="Purchased items"></ul>
-      <p class="order-total">Total: <span id="receipt-total"></span></p>
-      <p>Payment Method: <span id="receipt-method"></span></p>
-      <p>Amount Paid: <span id="receipt-paid"></span></p>
-      <p>Change: <span id="receipt-change"></span></p>
-      <p id="receipt-status" class="receipt-status"></p>
-      <button id="new-transaction" class="continue-button" type="button">NEW TRANSACTION</button>
+    <section id="receipt" class="receipt screen-panel" hidden aria-labelledby="receipt-title">
+      <div class="receipt-paper">
+        <h2 id="receipt-title" tabindex="-1">Touchscreen POS Kiosk</h2>
+        <p class="receipt-subtitle">Digital Receipt</p>
+        <p>Simulated transaction</p>
+        <div class="receipt-meta">
+          <p><span>Reference</span><strong id="receipt-reference"></strong></p>
+          <p><span>Date / Time</span><time id="receipt-date-time"></time></p>
+        </div>
+        <ul id="receipt-items" class="cart-items" aria-label="Purchased items"></ul>
+        <div class="receipt-totals">
+          <p>Total <span id="receipt-total"></span></p>
+          <p>Payment Method <span id="receipt-method"></span></p>
+          <p>Amount Paid <span id="receipt-paid"></span></p>
+          <p>Change <span id="receipt-change"></span></p>
+        </div>
+        <p id="receipt-status" class="receipt-status"></p>
+      </div>
+      <aside class="receipt-actions" aria-label="Receipt actions">
+        <h2>Your Receipt</h2>
+        <p>Your simulated transaction is complete. You can start a new order or print this receipt for your records.</p>
+        <button id="new-transaction" class="continue-button" type="button">New Transaction</button>
+        <button id="print-receipt" class="cart-control receipt-print-button" type="button">Print Receipt</button>
+      </aside>
     </section>
+    </div>
   </main>
 </body>
 </html>

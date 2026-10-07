@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" role="img" aria-labelledby="title desc">
+  <title id="title">Coffee</title>
+  <desc id="desc">A warm cup of coffee with steam.</desc>
+  <rect width="320" height="220" rx="30" fill="#f5ecff"/>
+  <circle cx="160" cy="110" r="72" fill="#ffffff"/>
+  <path d="M105 95h94v44a42 42 0 0 1-42 42h-10a42 42 0 0 1-42-42V95Z" fill="#7c3aed"/>
+  <path d="M120 110h64v29a28 28 0 0 1-28 28h-8a28 28 0 0 1-28-28v-29Z" fill="#ffffff"/>
+  <path d="M199 110h15a23 23 0 0 1 0 46h-15" fill="none" stroke="#7c3aed" stroke-width="14" stroke-linecap="round"/>
+  <path d="M132 72c-10-13 11-18 0-34M160 72c-10-13 11-18 0-34M188 72c-10-13 11-18 0-34" fill="none" stroke="#5b21b6" stroke-width="10" stroke-linecap="round"/>
+  <path d="M95 184h119" fill="none" stroke="#c4b5fd" stroke-width="12" stroke-linecap="round"/>
+</svg>

@@ -18,6 +18,37 @@ const paymentMethods = [
   { id: 'qr', label: 'QR Payment', buttonId: 'payment-qr' },
   { id: 'card', label: 'Credit/Debit Card', buttonId: 'payment-card' }
 ];
+const productImages = {
+  coffee: 'assets/products/coffee.png',
+  sandwich: 'assets/products/sandwich.png',
+  'soft-drink': 'assets/products/soft-drink.png',
+  cookies: 'assets/products/cookies.png',
+  'bottled-water': 'assets/products/bottled-water.png',
+  chocolate: 'assets/products/chocolate.png'
+};
+const checkoutSteps = ['order', 'review', 'payment', 'receipt'];
+const screenSteps = {
+  'item-selection': 'order',
+  'order-summary': 'review',
+  'payment-method': 'payment',
+  'payment-processing': 'payment',
+  'payment-successful': 'payment',
+  receipt: 'receipt'
+};
+
+function updateStepNavigation(screen) {
+  if (typeof document.querySelectorAll !== 'function') return;
+  const activeStep = screenSteps[screen] || 'order';
+  const activeIndex = checkoutSteps.indexOf(activeStep);
+  document.querySelectorAll('.step-item').forEach((item) => {
+    const itemIndex = checkoutSteps.indexOf(item.dataset.step);
+    item.classList.toggle('is-current', itemIndex === activeIndex);
+    item.classList.toggle('is-complete', itemIndex > -1 && itemIndex < activeIndex);
+    item.classList.toggle('is-upcoming', itemIndex > activeIndex);
+    if (itemIndex === activeIndex) item.setAttribute('aria-current', 'step');
+    else item.removeAttribute('aria-current');
+  });
+}
 
 function renderPaymentSelection() {
   const selected = paymentMethods.find((method) => method.id === applicationState.selectedPaymentMethod);
@@ -27,6 +58,8 @@ function renderPaymentSelection() {
   });
   const status = document.getElementById('payment-selection-status');
   if (status) status.textContent = selected ? `Selected: ${selected.label} (simulated).` : 'No payment method selected.';
+  const amountDue = document.getElementById('payment-method-total');
+  if (amountDue) amountDue.textContent = formatPrice(calculateTotal());
   const process = document.getElementById('payment-process');
   if (process) {
     process.disabled = !paymentMethods.some((method) => method.id === applicationState.selectedPaymentMethod);
@@ -118,9 +151,12 @@ function startNewTransaction() {
   ['summary-items', 'receipt-items'].forEach((id) => {
     document.getElementById(id).replaceChildren(document.createDocumentFragment());
   });
-  ['summary-total', 'qr-total', 'card-total'].forEach((id) => {
-    document.getElementById(id).textContent = formatPrice(0);
+  ['summary-total', 'payment-method-total', 'qr-total', 'card-total'].forEach((id) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = formatPrice(0);
   });
+  const summaryCount = document.getElementById('summary-count');
+  if (summaryCount) summaryCount.textContent = '0';
   ['qr-error', 'card-error', 'card-status', 'success-total', 'cash-paid-result',
     'cash-change-result', 'payment-method-result', 'success-reference', 'receipt-reference',
     'receipt-date-time', 'receipt-total', 'receipt-method', 'receipt-paid', 'receipt-change',
@@ -142,6 +178,8 @@ function renderPaymentProcessing() {
   document.getElementById('card-processing-panel').hidden = method !== 'card';
   const selected = paymentMethods.find((entry) => entry.id === method);
   document.getElementById('processing-title').textContent = `${selected.label} Payment Processing`;
+  const backButton = document.getElementById('cash-back');
+  if (backButton) backButton.textContent = method === 'cash' ? 'Change Payment Method' : 'Back';
   renderCashProcessing();
   document.getElementById('qr-total').textContent = formatPrice(calculateTotal());
   document.getElementById('qr-error').textContent = '';
@@ -226,6 +264,20 @@ function renderCashProcessing() {
   }
   const error = document.getElementById('cash-error');
   if (error) error.textContent = '';
+  renderCashChangePreview();
+}
+
+function renderCashChangePreview() {
+  const preview = document.getElementById('cash-change-preview');
+  const input = document.getElementById('amount-paid');
+  if (!preview || !input) return;
+  const value = input.value.trim();
+  if (!value) {
+    preview.textContent = formatPrice(0);
+    return;
+  }
+  const result = validateAmountPaid(value, calculateTotal());
+  preview.textContent = result.error ? formatPrice(0) : formatPrice(result.change);
 }
 
 function processCashPayment(event) {
@@ -243,10 +295,12 @@ function processCashPayment(event) {
   if (result.error) {
     input.setAttribute('aria-invalid', 'true');
     error.textContent = result.error;
+    renderCashChangePreview();
     return;
   }
   input.setAttribute('aria-invalid', 'false');
   error.textContent = '';
+  renderCashChangePreview();
   completeSimulatedPayment({ ...result, paymentMethod: 'Cash' });
 }
 
@@ -279,20 +333,27 @@ function renderOrderSummary() {
   cart.forEach((quantity, productId) => {
     const product = products.find((item) => item.id === productId);
     const row = document.createElement('li');
-    row.className = 'cart-item';
+    row.className = 'cart-item summary-row';
+    row.dataset.productId = productId;
     const name = document.createElement('h3');
+    name.className = 'summary-product-name';
     name.textContent = product.name;
     const unitPrice = document.createElement('p');
-    unitPrice.textContent = `Unit price: ${formatPrice(product.price)}`;
+    unitPrice.className = 'summary-unit-price';
+    unitPrice.textContent = `${formatPrice(product.price)} each`;
     const quantityLabel = document.createElement('p');
-    quantityLabel.textContent = `Qty: ${quantity}`;
+    quantityLabel.className = 'summary-quantity';
+    quantityLabel.textContent = String(quantity);
     const subtotal = document.createElement('p');
-    subtotal.textContent = `Subtotal: ${formatPrice(calculateSubtotal(productId))}`;
+    subtotal.className = 'summary-subtotal';
+    subtotal.textContent = formatPrice(calculateSubtotal(productId));
     row.append(name, unitPrice, quantityLabel, subtotal);
     fragment.append(row);
   });
   list.replaceChildren(fragment);
   total.textContent = formatPrice(calculateTotal());
+  const count = document.getElementById('summary-count');
+  if (count) count.textContent = String(Array.from(cart.values()).reduce((items, quantity) => items + quantity, 0));
 }
 
 function navigateTo(screen) {
@@ -333,6 +394,7 @@ function navigateTo(screen) {
   const label = document.getElementById('screen-label');
   const titles = { 'item-selection': 'Item Selection', 'order-summary': 'Order Summary', 'payment-method': 'Payment Method', 'payment-processing': 'Payment Processing', 'payment-successful': 'Payment Successful', 'receipt': 'Receipt' };
   if (label) label.textContent = `IT415 · ${titles[screen]}`;
+  updateStepNavigation(screen);
   const headings = { 'item-selection': 'app-title', 'order-summary': 'summary-title', 'payment-method': 'payment-title', 'payment-processing': 'processing-title', 'payment-successful': 'success-title', 'receipt': 'receipt-title' };
   const headingId = headings[screen];
   document.getElementById(headingId)?.focus?.();
@@ -412,7 +474,7 @@ function renderCart() {
       quantityLabel,
       createCartControl(`Increase ${product.name} quantity`, '+', () => increaseQuantity(productId))
     );
-    const remove = createCartControl(`Remove ${product.name}`, 'Remove', () => removeFromCart(productId));
+    const remove = createCartControl(`Remove ${product.name}`, '×', () => removeFromCart(productId));
     remove.classList.add('remove-button');
     row.append(name, unitPrice, controls, subtotal, remove);
     fragment.append(row);
@@ -436,6 +498,12 @@ function renderProducts(container) {
     button.dataset.productId = product.id;
     button.addEventListener('click', () => addToCart(product.id));
 
+    const image = document.createElement('img');
+    image.className = 'product-image';
+    image.src = productImages[product.id];
+    image.alt = product.name;
+    image.loading = 'lazy';
+
     const name = document.createElement('span');
     name.className = 'product-name';
     name.textContent = product.name;
@@ -444,7 +512,7 @@ function renderProducts(container) {
     price.className = 'product-price';
     price.textContent = formatPrice(product.price);
 
-    button.append(name, price);
+    button.append(image, name, price);
     fragment.append(button);
   });
 
@@ -481,10 +549,13 @@ function initializeApplication() {
     document.getElementById(method.buttonId)?.addEventListener('click', () => selectPaymentMethod(method.id));
   });
   renderPaymentSelection();
+  updateStepNavigation(currentScreen);
   document.getElementById('cash-payment-form')?.addEventListener('submit', processCashPayment);
+  document.getElementById('amount-paid')?.addEventListener('input', renderCashChangePreview);
   document.getElementById('qr-confirm')?.addEventListener('click', confirmQRPayment);
   document.getElementById('card-process')?.addEventListener('click', processCardPayment);
   document.getElementById('new-transaction')?.addEventListener('click', startNewTransaction);
+  document.getElementById('print-receipt')?.addEventListener('click', () => window.print());
 
   application.dataset.initialized = 'true';
 }

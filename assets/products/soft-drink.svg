@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" role="img" aria-labelledby="title desc">
+  <title id="title">Soft drink</title>
+  <desc id="desc">A cup of soft drink with a straw.</desc>
+  <rect width="320" height="220" rx="30" fill="#f5ecff"/>
+  <circle cx="160" cy="110" r="72" fill="#ffffff"/>
+  <path d="m121 82 13 101h52l13-101H121Z" fill="#fca5a5" stroke="#7c3aed" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M118 82h84" fill="none" stroke="#5b21b6" stroke-width="12" stroke-linecap="round"/>
+  <path d="M168 76 185 40h37" fill="none" stroke="#5b21b6" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M135 113h50" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M142 142h36" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+</svg>
