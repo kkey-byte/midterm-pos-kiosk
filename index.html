@@ -10,11 +10,12 @@
 <body>
   <main id="app" class="kiosk" aria-labelledby="app-title">
     <header class="kiosk-header">
-      <p class="eyebrow">IT415 · Item Selection</p>
-      <h1 id="app-title">Touchscreen POS Kiosk</h1>
-      <p id="selection-note">Tap a product to add it to your order. Use + and − to adjust quantities.</p>
+      <p id="screen-label" class="eyebrow">IT415 · Item Selection</p>
+      <h1 id="app-title" tabindex="-1">Touchscreen POS Kiosk</h1>
     </header>
-    <div class="kiosk-layout">
+    <p id="navigation-message" role="status" aria-live="polite"></p>
+    <div id="item-selection" class="kiosk-layout">
+      <p id="selection-note" class="selection-note">Tap a product to add it to your order. Use + and − to adjust quantities.</p>
       <section aria-labelledby="products-title">
         <h2 id="products-title">Products</h2>
         <div id="product-grid" class="product-grid" aria-describedby="selection-note"></div>
@@ -25,10 +26,73 @@
         <p id="empty-order" class="empty-order">Your order is empty.</p>
         <ul id="cart-items" class="cart-items" aria-label="Order items"></ul>
         <p class="order-total" aria-live="polite" aria-atomic="true">Total: <span id="cart-total">₱0.00</span></p>
-        <p id="continue-note" class="order-note">The next step is not available yet.</p>
-        <button class="continue-button" type="button" disabled aria-describedby="continue-note">Continue</button>
+        <p id="continue-note" class="order-note">Review your order before continuing.</p>
+        <button id="selection-continue" class="continue-button" type="button" disabled aria-describedby="continue-note">Continue</button>
       </aside>
     </div>
+    <section id="order-summary" hidden aria-labelledby="summary-title">
+      <h2 id="summary-title" tabindex="-1">Order Summary</h2>
+      <p>Review your selected products and quantities.</p>
+      <ul id="summary-items" class="cart-items" aria-label="Order summary items"></ul>
+      <p class="order-total">Total: <span id="summary-total">₱0.00</span></p>
+      <div class="navigation-controls">
+        <button id="summary-back" class="cart-control" type="button">BACK</button>
+        <button id="summary-continue" class="continue-button" type="button">CONTINUE TO PAYMENT</button>
+      </div>
+    </section>
+    <section id="payment-method" hidden aria-labelledby="payment-title">
+      <h2 id="payment-title" tabindex="-1">Payment Method</h2>
+      <p id="payment-note">Choose a simulated payment method. No real payment will be taken.</p>
+      <div class="payment-options" role="group" aria-label="Simulated payment methods" aria-describedby="payment-note">
+        <button id="payment-cash" class="payment-option" type="button" aria-pressed="false">Cash</button>
+        <button id="payment-qr" class="payment-option" type="button" aria-pressed="false">QR Payment</button>
+        <button id="payment-card" class="payment-option" type="button" aria-pressed="false">Credit/Debit Card</button>
+      </div>
+      <p id="payment-selection-status" role="status" aria-live="polite">No payment method selected.</p>
+      <p id="cash-availability">All payment methods are simulated. No real payment will be taken.</p>
+      <button id="payment-process" class="continue-button" type="button" disabled aria-describedby="cash-availability">CONTINUE WITH CASH</button>
+      <button id="payment-back" class="cart-control" type="button">BACK TO ORDER SUMMARY</button>
+    </section>
+    <section id="payment-processing" hidden aria-labelledby="processing-title">
+      <h2 id="processing-title" tabindex="-1">Cash Payment Processing</h2>
+      <div id="cash-processing-panel">
+      <p>Simulated cash payment only.</p>
+      <p class="order-total">Total Amount: <span id="cash-total">₱0.00</span></p>
+      <form id="cash-payment-form" novalidate>
+        <label for="amount-paid">Amount Paid (₱)</label>
+        <p id="amount-help">Enter a non-negative amount with up to two decimal places.</p>
+        <input id="amount-paid" name="amount-paid" type="text" inputmode="decimal" autocomplete="off" aria-describedby="amount-help cash-error">
+        <p id="cash-error" role="alert"></p>
+        <button id="cash-pay-now" class="continue-button" type="submit">Pay Now</button>
+      </form>
+      </div>
+      <div id="qr-processing-panel" hidden>
+        <p class="order-total">Amount Due: <span id="qr-total">₱0.00</span></p>
+        <div class="qr-placeholder" role="img" aria-label="QR placeholder for simulation only; not a scannable payment code">
+          <strong>QR PLACEHOLDER</strong>
+          <span>SIMULATION ONLY · NOT SCANNABLE</span>
+        </div>
+        <p>Scan the QR code using a supported payment application. For this simulation, no scan or application is required: use Confirm Payment below.</p>
+        <p id="qr-error" role="alert"></p>
+        <button id="qr-confirm" class="continue-button" type="button">Confirm Payment</button>
+      </div>
+      <div id="card-processing-panel" hidden aria-busy="false">
+        <p class="order-total">Amount Due: <span id="card-total">₱0.00</span></p>
+        <p>Please tap, insert, or swipe your card.</p>
+        <p>This is a simulation. No physical card or card details are needed.</p>
+        <p id="card-status" role="status" aria-live="polite">Ready to simulate payment.</p>
+        <p id="card-error" role="alert"></p>
+        <button id="card-process" class="continue-button" type="button">Process Payment</button>
+      </div>
+      <button id="cash-back" class="cart-control" type="button">BACK TO PAYMENT METHOD</button>
+    </section>
+    <section id="payment-successful" hidden aria-labelledby="success-title">
+      <h2 id="success-title" tabindex="-1">Payment Successful</h2>
+      <p>Simulated payment accepted.</p>
+      <p>Payment Method: <span id="payment-method-result"></span></p>
+      <p class="order-total">Amount Paid: <span id="cash-paid-result"></span></p>
+      <p class="order-total">Change: <span id="cash-change-result"></span></p>
+    </section>
   </main>
 </body>
 </html>

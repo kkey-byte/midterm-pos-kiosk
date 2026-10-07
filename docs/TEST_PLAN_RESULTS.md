@@ -14,6 +14,91 @@
 
 ## Planned acceptance tests
 
+### Focused Payment release review — 2026-10-07
+
+Reran `node --check script.js`, `node tests/cart.test.cjs`, and `git diff --check`: all passed. No genuine application defect was discovered during this focused review; only verification coverage and documentation were expanded.
+
+- Cash: total ₱140; ₱100 rejected, ₱140 accepted/change ₱0, ₱200 accepted/change ₱60, and ₱200.10/change ₱60.10. Invalid inputs retained processing with feedback and no successful result.
+- QR: active panel amount ₱140; confirmation records paid ₱140/change ₱0/method QR Payment. Source assertions checked the labelled non-scannable placeholder and scan instruction.
+- Card: active panel amount ₱140; source asserts the required tap/insert/swipe instruction. Handler exposes Processing, disables repeat/back, schedules one 1500ms callback; controlled completion records paid ₱140/change ₱0/method Credit/Debit Card.
+- Added full Back-chain checks for every method: processing → payment method → summary → Item Selection retains the same Map, Coffee ×2, Sandwich ×1, and total ₱140.
+- Source assertions confirm the only input is Amount Paid; no credential fields exist.
+
+Payment is DONE for implemented logic, simulated DOM output, and source verification. Real browser rendering/click/touch/focus/console and elapsed timer behavior were not tested and remain integration work. No receipt or transaction ledger was added.
+
+### Simulated Credit/Debit Card — 2026-10-07
+
+Executed `node --check script.js`, `node tests/cart.test.cjs`, and Git whitespace checks successfully. The test executes actual registered handlers in a simulated DOM. setTimeout is replaced by a controlled queue: the test verifies the scheduled delay is 1500ms and explicitly invokes the callback. Real elapsed timing, browser rendering, touch, focus, and console checks were not performed.
+
+| Check | Observed result | Outcome |
+| --- | --- | --- |
+| Card processing screen | Card panel visible, Cash/QR hidden, amount due ₱140.00 | PASS |
+| Process Payment | State cardProcessing=true, Processing message and button text, aria-busy=true, Process and Back disabled; result remains null | PASS |
+| Six repeated activations | Exactly one 1500ms callback; Back handler cannot navigate while locked | PASS |
+| Controlled callback completion | Payment Successful; amountPaid=140, change=0, paymentMethod=Credit/Debit Card | PASS |
+| Success display | Paid ₱140.00, change ₱0.00, Credit/Debit Card; cart preserved | PASS |
+| Process after success | No new callback/result | PASS |
+| Cart changed during delay | Rejected with feedback, no result/success, processing lock released | PASS |
+| Empty/invalid resubmission | Rejected without scheduling another callback | PASS |
+| Earlier regression suite | Cart, summary, method selection, cash validation/change, and QR confirmation passed | PASS |
+| Instructions/credentials | Source inspected: exact tap/insert/swipe instruction and explicit simulation text; no card number, expiration, CVV, PIN, or provider input/connection | PASS for source inspection |
+
+No receipt or transaction ledger was implemented. Card processing uses the shared paymentResult and completion function.
+
+### Simulated QR Payment — 2026-10-07
+
+Executed `node --check script.js`, `node tests/cart.test.cjs`, and Git whitespace checks successfully. The simulated DOM test uses actual registered method, navigation, and Confirm Payment handlers. Actual browser, touch, and console checks were not performed.
+
+| Check | Observed result | Outcome |
+| --- | --- | --- |
+| Select QR and continue | Processing shows QR panel; amount due ₱140.00; Cash panel hidden; no result before confirmation | PASS |
+| Back before confirmation | Payment Method restored; cart still Coffee ×2 + Sandwich ×1, total ₱140.00 | PASS |
+| Confirm Payment | Success state; amountPaid 140, change 0, paymentMethod QR Payment, total 140 | PASS |
+| Success display | Paid ₱140.00; change ₱0.00; method QR Payment | PASS |
+| Repeated confirmation | Same payment result object retained; no duplicate completion | PASS |
+| Empty cart at confirmation | Processing retained with clear feedback; no result or success | PASS |
+| Cash and earlier regressions | All existing cases passed, including cash ₱100 rejection, ₱200/change ₱60, exact ₱140/change ₱0 | PASS |
+| Placeholder/instructions/provider boundary | Source inspected: clearly labelled non-scannable QR placeholder, supported-payment-application scan instruction with explicit simulation alternative, no provider connection or credential fields | PASS for source inspection |
+
+Cash and QR now share applicationState.paymentResult and completeSimulatedPayment. Historical cashPayment references elsewhere describe the earlier checkpoint. Only in-memory simulated payment data is recorded; no receipt or transaction ledger is generated.
+
+### Cash Payment processing — 2026-10-07
+
+Executed `node --check script.js`, `node tests/cart.test.cjs`, and `git diff --check`; all passed. The test executes the actual application script in a simulated DOM and submits the registered cash form handler. These results do not establish actual browser/touch/console behavior.
+
+| Total | Amount Paid | Observed result | Outcome |
+| --- | --- | --- | --- |
+| ₱140.00 | ₱100.00 | Rejected with insufficient-amount message; remains payment-processing; no success, payment result, transaction, or receipt | PASS |
+| ₱140.00 | ₱200.00 | Accepted; Payment Successful shown; change ₱60.00 | PASS |
+| ₱140.00 | ₱140.00 | Accepted; change ₱0.00 | PASS |
+| ₱140.00 | ₱200.10 | Accepted; change ₱60.10 using integer cents | PASS |
+| ₱140.00 | Blank/whitespace, abc, −1 | Rejected with clear feedback and no success/result/transaction/receipt | PASS |
+| ₱140.00 | Infinity, −Infinity, NaN, 1e309 | Rejected as invalid/non-finite; remains processing | PASS |
+| ₱140.00 | 200.001, 9007199254740992 | Rejected for precision or safe-integer range; remains processing | PASS |
+
+Also verified premature success navigation is blocked, repeated submit after success cannot change the accepted result, and existing cart/summary/method selection checks still pass. No receipt, transaction record, identifier, payment API, or QR/card processing exists. Invalid attempts retain the order and allow correcting Amount Paid. Real browser checks remain NOT VERIFIED.
+
+UI source inspected: Total Amount, labelled Amount Paid input with decimal keyboard hint, Pay Now, error alert, and Back are present. Success is a minimal cash acceptance view showing amount paid and change; it does not create a receipt or transaction record.
+
+### Payment Method selection — 2026-10-07
+
+Executed `node --check script.js`, `node tests/cart.test.cjs`, and Git whitespace checks successfully. Tests execute the actual application script and registered button handlers in a simulated DOM. This is not a browser test.
+
+| Method / check | Observed result | Outcome |
+| --- | --- | --- |
+| Cash | State stores cash; Cash alone is pressed; visible status says Cash (simulated) | PASS |
+| QR Payment | State stores qr; QR alone is pressed; visible status says QR Payment (simulated) | PASS |
+| Credit/Debit Card | State stores card; Card alone is pressed; status says Credit/Debit Card (simulated) | PASS |
+| Back after each selection | Returns to summary; same cart Map; Coffee ×2, Sandwich ×1, total ₱140 preserved | PASS |
+| Re-enter Payment Method | Previous method remains selected and pressed | PASS |
+| Invalid method | Ignored; previous choice preserved | PASS |
+| Invalid cart during selection | Invalid entry removed; valid cart preserved; method cleared; safely returns to selection | PASS |
+| Credentials / completion | Source inspected: only a method identifier is stored; no credential inputs, payment API, timer, or transaction completion | PASS for inspection |
+| Cart and summary regressions | Existing checks passed, including ₱175 → ₱220 → ₱175 → ₱140 | PASS |
+| Real browser, focus, touch, and console | Not performed | NOT VERIFIED |
+
+Payment buttons have 120px minimum height, 24px padding, native keyboard semantics, visible focus styling, and aria-pressed selection. Size and styling were inspected in source, not rendered in a browser. Order Summary files were restored from feature-checkout because main did not yet contain that branch; no merge was performed.
+
 ### Cart Management — 2026-10-07
 
 Executed `node --check script.js` and `node tests/cart.test.cjs`; both exited with code 0. The latter executes the actual application script with a simulated DOM and invokes registered product and cart button click handlers. It checks cart state and rendered quantity, subtotal, and total text. This is not a real browser or touchscreen test.

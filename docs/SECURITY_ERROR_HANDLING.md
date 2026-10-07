@@ -2,9 +2,15 @@
 
 ## Scope
 
+Card payment is simulated by a local timer only. No card number, expiration, CVV, PIN, token, or provider request is used. A synchronous processing flag prevents repeated activation and navigation during the delay; the callback verifies the order before producing a shared payment result. An invalid/changed order receives feedback without success.
+
+QR simulation uses only a textual non-scannable placeholder and explicit user confirmation. It requests no QR credentials, tokens, account identifiers, or application access, and connects to no payment service. Confirmation guards the active method, valid cart, and existing result; empty/invalid orders cannot produce success. Cash and QR share one in-memory paymentResult.
+
 This is a local examination project with no backend, database, authentication, or real payment service. Payment is simulated only. Do not request, store, or transmit card details, credentials, or personal payment data.
 
 ## Planned safeguards
+
+Implemented cash safeguards on feature-payment: input is trimmed and validated for numeric format, finite/non-negative value, two-decimal currency precision, safe integer cents, and sufficient funds before change calculation. Invalid submissions show a clear alert and remain processing with no result/transaction/receipt. Repeated submit after success is ignored. Cash totals come from the authoritative cart and shared calculation functions. Only simulated amounts and method identifiers are used; no payment credentials are collected.
 
 - Render dynamic labels with textContent rather than injecting HTML.
 - Validate product identifiers against the hard-coded catalog.

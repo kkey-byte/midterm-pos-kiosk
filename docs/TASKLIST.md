@@ -16,9 +16,10 @@ The stages below are the development sequence derived from the approved flow. Co
 | S2 | Item Selection | Implement the hard-coded product catalog and touchscreen item selection | TODO | Verify selection updates in-memory order state |
 | S2C | Cart Management | Implement adding products, quantities, removal, and order totals | DONE | Actual script and registered click handlers passed the exact calculation scenario, rendered totals, zero/removal guard, and invalid-ID checks in tests/cart.test.cjs; real browser interaction remains unverified under S9 |
 | S3 | Order Summary | Implement quantities, removal, totals, and summary navigation | TODO | Verify order calculations and prevent advancing with an empty order |
-| S4 | Payment Method | Implement simulated payment method selection | TODO | Verify a method is required before processing |
-| S5 | Payment Processing | Implement simulated processing and duplicate-submission protection | TODO | Verify processing state and one completion per transaction |
-| S6 | Payment Successful | Implement the success screen | TODO | Verify it appears only after successful simulated processing |
+| S4P | Payment | Develop the simulated payment stages | DONE | Focused cash/QR/card handler tests and all-method Back preservation passed in simulated DOM with controlled card timer; required UI source checked; real browser verification remains under S9 |
+| S4 | Payment Method | Implement simulated payment method selection | DONE | All three choices and Back preservation passed simulated DOM tests; only allowlisted method identifiers stored; browser checks remain under S9 |
+| S5 | Payment Processing | Implement simulated processing and duplicate-submission protection | DONE | Focused cash validation/change, QR confirmation, and card lock/completion tests passed; actual timer/rendering checks remain under S9 |
+| S6 | Payment Successful | Implement the success screen | IN PROGRESS | Minimal shared success view shows method, paid amount, and change for all three methods; guards tested; receipt/transaction records not implemented |
 | S7 | Receipt | Implement receipt display from the completed transaction | TODO | Verify receipt items, totals, and payment method match the transaction |
 | S8 | New Transaction | Reset transaction state and return to Item Selection | TODO | Verify no previous order or payment state remains |
 | S9 | Integration and quality verification | Verify the entire flow, touch usability, error handling, and console | TODO | Execute TEST_PLAN_RESULTS.md cases and record actual results |
