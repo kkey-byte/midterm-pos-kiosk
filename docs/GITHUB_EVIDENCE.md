@@ -1,5 +1,18 @@
 # GitHub Evidence
 
+## Confirmation / Receipt / Reset review — 2026-10-07
+
+- Branch: feature-receipt; PR target: main. Foundation on main includes payment merge 6782605.
+- Actual feature commit: a26f786798f088043eb44098b5920f02642f801d.
+- Subject: feat(receipt): add transaction confirmation receipt and reset.
+- Review confirmed scope is confirmation, immutable transaction snapshot, receipt, reset, related tests and documentation. Corresponding TASKLIST tasks are DONE for the recorded verification scope.
+- node --check script.js, node tests/cart.test.cjs, and git diff --check passed. Tests execute actual handlers in simulated DOM; no browser/touch/console test is claimed.
+- Exact receipt total ₱140, Cash paid ₱200, change ₱60 passed; invalid payment guards, two distinct references, cart-independent snapshots, complete reset, and subsequent Cookies/QR transaction passed.
+- Push attempted: git push -u origin feature-receipt with credential.interactive=never. Exit 1: Cannot prompt because user interactivity has been disabled; unable to get password from user. Successful push is not claimed.
+- PR description prepared in RECEIPT_PR_DESCRIPTION.md. GitHub CLI is unavailable and this branch push is blocked by credentials; no PR creation is claimed.
+- After authenticating, push feature-receipt and open https://github.com/kkey-byte/midtern-pos-kiosk/compare/main...feature-receipt with base main and compare feature-receipt. Use the feature commit subject as title and the prepared description. Create a draft PR; do not merge.
+- Feature hash evidence and PR description are recorded in a separate documentation commit so the actual feature hash can be preserved. No merge performed.
+
 ## Existing repository
 
 [kkey-byte/midtern-pos-kiosk](https://github.com/kkey-byte/midtern-pos-kiosk)
